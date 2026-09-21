@@ -76,36 +76,78 @@ export const getMe = async (req, res) => {
   }
 };
 
-// NOUVELLE FONCTION : Changer le mot de passe
+// Obtenir la liste des utilisateurs (pour Papa)
+export const getUtilisateurs = async (req, res) => {
+  try {
+    if (req.utilisateur.role !== 'Proprietaire') {
+      return res.status(403).json({ message: 'Réservé au propriétaire' });
+    }
+    const utilisateurs = await Utilisateur.find().select('-motDePasse');
+    res.json(utilisateurs);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Changer le mot de passe (soi-même OU un autre si on est propriétaire)
 export const changerMotDePasse = async (req, res) => {
   try {
-    const { ancienMotDePasse, nouveauMotDePasse } = req.body;
+    const { ancienMotDePasse, nouveauMotDePasse, cibleId } = req.body;
 
-    if (!ancienMotDePasse || !nouveauMotDePasse) {
-      return res.status(400).json({ message: 'Tous les champs sont requis' });
+    if (!nouveauMotDePasse) {
+      return res.status(400).json({ message: 'Le nouveau mot de passe est requis' });
     }
 
     if (nouveauMotDePasse.length < 4) {
-      return res.status(400).json({ message: 'Le nouveau mot de passe doit faire au moins 4 caractères' });
+      return res.status(400).json({
+        message: 'Le nouveau mot de passe doit faire au moins 4 caractères',
+      });
     }
 
     // Récupérer l'utilisateur connecté
-    const utilisateur = await Utilisateur.findById(req.utilisateur.id);
-    if (!utilisateur) {
+    const utilisateurConnecte = await Utilisateur.findById(req.utilisateur.id);
+    if (!utilisateurConnecte) {
       return res.status(404).json({ message: 'Utilisateur introuvable' });
     }
 
-    // Vérifier l'ancien mot de passe
-    const correspond = await utilisateur.comparerMotDePasse(ancienMotDePasse);
-    if (!correspond) {
-      return res.status(401).json({ message: 'Ancien mot de passe incorrect' });
+    // Déterminer la cible
+    let utilisateurCible = utilisateurConnecte;
+    let changementAutreUtilisateur = false;
+
+    if (cibleId && cibleId !== req.utilisateur.id) {
+      // On change le mot de passe d'un AUTRE utilisateur
+      if (utilisateurConnecte.role !== 'Proprietaire') {
+        return res.status(403).json({
+          message: 'Seul le propriétaire peut modifier le mot de passe des autres',
+        });
+      }
+      utilisateurCible = await Utilisateur.findById(cibleId);
+      if (!utilisateurCible) {
+        return res.status(404).json({ message: 'Utilisateur cible introuvable' });
+      }
+      changementAutreUtilisateur = true;
     }
 
-    // Mettre à jour le mot de passe (le hash se fera automatiquement)
-    utilisateur.motDePasse = nouveauMotDePasse;
-    await utilisateur.save();
+    // Si on change SON PROPRE mot de passe → vérifier l'ancien
+    if (!changementAutreUtilisateur) {
+      if (!ancienMotDePasse) {
+        return res.status(400).json({ message: 'Ancien mot de passe requis' });
+      }
+      const correspond = await utilisateurCible.comparerMotDePasse(ancienMotDePasse);
+      if (!correspond) {
+        return res.status(401).json({ message: 'Ancien mot de passe incorrect' });
+      }
+    }
 
-    res.json({ message: '✅ Félicitations Dieu Merci  ! Mot de passe modifié avec succès' });
+    // Mettre à jour
+    utilisateurCible.motDePasse = nouveauMotDePasse;
+    await utilisateurCible.save();
+
+    res.json({
+      message: changementAutreUtilisateur
+        ? `✅ Mot de passe de ${utilisateurCible.nom} modifié avec succès`
+        : '✅ Votre mot de passe a été modifié avec succès',
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -3,6 +3,7 @@ import {
   login,
   creerUtilisateur,
   getMe,
+  getUtilisateurs,
   changerMotDePasse,
 } from '../controllers/authController.js';
 import { proteger } from '../middleware/auth.js';
@@ -12,6 +13,7 @@ const router = express.Router();
 router.post('/login', login);
 router.post('/register', creerUtilisateur);
 router.get('/me', proteger, getMe);
+router.get('/utilisateurs', proteger, getUtilisateurs);
 router.put('/changer-mot-de-passe', proteger, changerMotDePasse);
 
 export default router;

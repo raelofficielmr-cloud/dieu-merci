@@ -3,11 +3,11 @@ import Layout from '../components/layout/Layout';
 import { useTaux } from '../context/TauxContext';
 import { useAuth } from '../context/AuthContext';
 import { parametreService, type Parametre } from '../services/parametreService';
-import { authService } from '../services/authService';
+import { authService, type UtilisateurListe } from '../services/authService';
 
 export default function Parametres() {
   const { taux, setTaux } = useTaux();
-  const { estProprietaire } = useAuth();
+  const { estProprietaire, role } = useAuth();
   const proprietaire = estProprietaire();
 
   const [, setParametres] = useState<Parametre | null>(null);
@@ -19,6 +19,10 @@ export default function Parametres() {
     adresse: '',
     telephone: '',
   });
+
+  // Liste des utilisateurs (pour Papa)
+  const [utilisateurs, setUtilisateurs] = useState<UtilisateurListe[]>([]);
+  const [cibleId, setCibleId] = useState<string>(''); // '' = soi-même
 
   // Changement mot de passe
   const [ancienMdp, setAncienMdp] = useState('');
@@ -38,12 +42,18 @@ export default function Parametres() {
           adresse: data.adresse,
           telephone: data.telephone,
         });
+
+        // Charger la liste des utilisateurs si Papa
+        if (proprietaire) {
+          const users = await authService.getUtilisateurs();
+          setUtilisateurs(users);
+        }
       } catch (error) {
         console.error(error);
       }
     };
     charger();
-  }, []);
+  }, [proprietaire]);
 
   const enregistrerTaux = async () => {
     await setTaux(taux);
@@ -66,17 +76,30 @@ export default function Parametres() {
     setErreurMdp('');
     setMessageMdp('');
 
-    if (!ancienMdp) return setErreurMdp('Entrez votre ancien mot de passe');
-    if (nouveauMdp.length < 4) return setErreurMdp('Le nouveau mot de passe doit faire au moins 4 caractères');
-    if (nouveauMdp !== confirmationMdp) return setErreurMdp('Les deux mots de passe ne correspondent pas');
+    const changeAutre = cibleId && cibleId !== '';
+
+    if (!changeAutre) {
+      // On change SON PROPRE mot de passe
+      if (!ancienMdp) return setErreurMdp('Entrez votre ancien mot de passe');
+    }
+
+    if (nouveauMdp.length < 4)
+      return setErreurMdp('Le nouveau mot de passe doit faire au moins 4 caractères');
+    if (nouveauMdp !== confirmationMdp)
+      return setErreurMdp('Les deux mots de passe ne correspondent pas');
 
     setChargementMdp(true);
     try {
-      await authService.changerMotDePasse(ancienMdp, nouveauMdp);
+      await authService.changerMotDePasse(
+        ancienMdp,
+        nouveauMdp,
+        changeAutre ? cibleId : undefined
+      );
       setMessageMdp('✅ Mot de passe modifié avec succès !');
       setAncienMdp('');
       setNouveauMdp('');
       setConfirmationMdp('');
+      setCibleId('');
       setTimeout(() => setMessageMdp(''), 3000);
     } catch (error: any) {
       const msg = error.response?.data?.message || 'Erreur lors du changement';
@@ -85,6 +108,9 @@ export default function Parametres() {
       setChargementMdp(false);
     }
   };
+
+  const utilisateurCible = utilisateurs.find((u) => u._id === cibleId);
+  const changeAutre = cibleId !== '';
 
   return (
     <Layout>
@@ -177,11 +203,117 @@ export default function Parametres() {
         {proprietaire && (
           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 md:p-6 rounded-lg">
             <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
-              🔐 Changer mon mot de passe
+              🔐 Changer un mot de passe
             </h3>
             <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Modifiez le mot de passe de connexion (Papa uniquement).
+              Changez votre mot de passe ou celui de l'informaticien.
             </p>
+
+            {/* Sélection du compte */}
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Compte à modifier
+              </label>
+              <select
+                value={cibleId}
+                onChange={(e) => {
+                  setCibleId(e.target.value);
+                  setAncienMdp('');
+                  setNouveauMdp('');
+                  setConfirmationMdp('');
+                  setErreurMdp('');
+                  setMessageMdp('');
+                }}
+                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+              >
+                <option value="">👑 Mon mot de passe (Propriétaire)</option>
+                {utilisateurs
+                  .filter((u) => u.role === 'Informaticien')
+                  .map((u) => (
+                    <option key={u._id} value={u._id}>
+                      💻 {u.nom} (Informaticien)
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Info sur le mode */}
+            {changeAutre && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-3 rounded text-xs text-yellow-800 dark:text-yellow-300 mb-4">
+                ⚠️ Vous modifiez le mot de passe de <strong>{utilisateurCible?.nom}</strong>.
+                L'ancien mot de passe n'est pas requis.
+              </div>
+            )}
+
+            {/* Ancien mot de passe - SEULEMENT si on change le sien */}
+            {!changeAutre && (
+              <div className="mb-3">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Ancien mot de passe
+                </label>
+                <input
+                  type="password"
+                  value={ancienMdp}
+                  onChange={(e) => setAncienMdp(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  placeholder="••••"
+                />
+              </div>
+            )}
+
+            <div className="mb-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Nouveau mot de passe
+              </label>
+              <input
+                type="password"
+                value={nouveauMdp}
+                onChange={(e) => setNouveauMdp(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                placeholder="••••"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Confirmer le nouveau mot de passe
+              </label>
+              <input
+                type="password"
+                value={confirmationMdp}
+                onChange={(e) => setConfirmationMdp(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                placeholder="••••"
+              />
+            </div>
+
+            {erreurMdp && (
+              <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-600 text-red-700 dark:text-red-300 p-3 rounded text-sm mb-3">
+                ⚠️ {erreurMdp}
+              </div>
+            )}
+            {messageMdp && (
+              <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-600 text-green-700 dark:text-green-300 p-3 rounded text-sm mb-3">
+                {messageMdp}
+              </div>
+            )}
+
+            <button
+              onClick={changerLeMotDePasse}
+              disabled={chargementMdp}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
+            >
+              {chargementMdp ? '⏳ Modification...' : '🔐 Changer le mot de passe'}
+            </button>
+          </div>
+        )}
+
+        {/* Pour l'informaticien : juste changer son propre mot de passe */}
+        {!proprietaire && role === 'Informaticien' && (
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 md:p-6 rounded-lg">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
+              🔐 Changer mon mot de passe
+            </h3>
 
             <div className="space-y-3">
               <div>
@@ -210,7 +342,7 @@ export default function Parametres() {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Confirmer le nouveau mot de passe
+                  Confirmer
                 </label>
                 <input
                   type="password"
