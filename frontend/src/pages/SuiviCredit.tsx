@@ -10,7 +10,7 @@ import { genererBonLivraisonPDF } from '../utils/pdfLivraison';
 export default function SuiviCredit() {
   const { taux } = useTaux();
   const { succursales, setSuccursales } = useSuccursales();
-  const { role } = useAuth();
+ useAuth(); // ou supprime complètement la ligne si useAuth n'est pas utilisé
 
   const [succursaleChoisie, setSuccursaleChoisie] = useState(succursales[0]?.nom || '');
   const [dateLivraison, setDateLivraison] = useState(

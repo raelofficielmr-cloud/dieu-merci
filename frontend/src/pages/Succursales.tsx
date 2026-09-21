@@ -149,11 +149,6 @@ export default function Succursales() {
     }
   };
 
-  const formaterDate = (date: string) => {
-    const d = new Date(date);
-    return d.toLocaleDateString('fr-FR');
-  };
-
   return (
     <Layout>
       <div className="mb-6">

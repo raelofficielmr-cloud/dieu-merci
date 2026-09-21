@@ -9,7 +9,7 @@ export default function Parametres() {
   const { estProprietaire } = useAuth();
   const proprietaire = estProprietaire();
 
-  const [parametres, setParametres] = useState<Parametre | null>(null);
+  const [, setParametres] = useState<Parametre | null>(null);
   const [sauvegardeTaux, setSauvegardeTaux] = useState(false);
   const [sauvegardeInfos, setSauvegardeInfos] = useState(false);
 
