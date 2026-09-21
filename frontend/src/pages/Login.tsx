@@ -32,7 +32,7 @@ if (ok) {
         {/* Header avec logo */}
         <div className="bg-white dark:bg-gray-800 p-8 text-center border-b border-gray-200 dark:border-gray-700">
           <img
-            src="/logoets.png"
+            src="/logodieumerci.png"
             alt="Dieu Merci"
             className="h-28 w-auto mx-auto object-contain"
           />
