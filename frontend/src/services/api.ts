@@ -25,7 +25,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('dieumerci_token');
       localStorage.removeItem('dieumerci_user');
-      window.location.href = '/login';
+
+      // ⚠️ Ne rediriger QUE si on n'est PAS déjà sur /login
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

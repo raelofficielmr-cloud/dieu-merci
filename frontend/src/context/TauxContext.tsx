@@ -14,8 +14,11 @@ const TAUX_DEFAUT = 2350;
 export function TauxProvider({ children }: { children: ReactNode }) {
   const [taux, setTauxState] = useState<number>(TAUX_DEFAUT);
 
-  // Charger le taux depuis MongoDB
   const chargerTaux = async () => {
+    // ⚠️ Ne charger QUE si connecté
+    const token = localStorage.getItem('dieumerci_token');
+    if (!token) return;
+
     try {
       const params = await parametreService.get();
       setTauxState(params.tauxDuJour);
@@ -28,7 +31,6 @@ export function TauxProvider({ children }: { children: ReactNode }) {
     chargerTaux();
   }, []);
 
-  // Modifier le taux dans MongoDB
   const setTaux = async (valeur: number) => {
     setTauxState(valeur);
     try {
