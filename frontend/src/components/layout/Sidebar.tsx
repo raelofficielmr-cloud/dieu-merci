@@ -37,13 +37,21 @@ export default function Sidebar() {
   const menusAutorises = menuItems.filter((m) => role && m.roles.includes(role));
   const menusMobileAutorises = menuMobile.filter((m) => role && m.roles.includes(role));
 
+  const handleDeconnexion = () => {
+    if (confirm('Voulez-vous vous déconnecter ?')) {
+      localStorage.removeItem('dieumerci_token');
+      localStorage.removeItem('dieumerci_user');
+      window.location.href = '/login';
+    }
+  };
+
   return (
     <>
       {/* SIDEBAR ORDINATEUR */}
       <aside className="hidden md:flex bg-white dark:bg-gray-800 w-64 min-h-screen border-r border-gray-200 dark:border-gray-700 flex-col transition-colors flex-shrink-0">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <img
-            src="/logoets.png"
+            src="/logodieumerci.png"
             alt="Dieu Merci"
             className="h-24 w-auto mx-auto object-contain"
           />
@@ -71,12 +79,7 @@ export default function Sidebar() {
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
-            onClick={() => {
-              if (confirm('Voulez-vous vous déconnecter ?')) {
-                localStorage.removeItem('dieumerci_role');
-                window.location.href = '/login';
-              }
-            }}
+            onClick={handleDeconnexion}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold"
           >
             <span className="text-lg">🚪</span>
@@ -87,24 +90,35 @@ export default function Sidebar() {
 
       {/* BARRE DU BAS MOBILE */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 transition-colors">
-        <div className="flex justify-around items-center py-1 overflow-x-auto">
+        <div className="flex justify-around items-center py-1">
           {menusMobileAutorises.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg flex-shrink-0 ${
+                className={`flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-1 min-w-0 ${
                   isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
                 <span className="text-xl">{item.icone}</span>
-                <span className="text-[9px] font-medium text-center leading-tight whitespace-nowrap">
+                <span className="text-[9px] font-medium text-center leading-tight truncate">
                   {item.name}
                 </span>
               </Link>
             );
           })}
+
+          {/* BOUTON DÉCONNEXION sur mobile */}
+          <button
+            onClick={handleDeconnexion}
+            className="flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-1 min-w-0 text-red-600 dark:text-red-400"
+          >
+            <span className="text-xl">🚪</span>
+            <span className="text-[9px] font-medium text-center leading-tight truncate">
+              Sortir
+            </span>
+          </button>
         </div>
       </nav>
     </>
