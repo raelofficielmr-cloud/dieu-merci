@@ -17,8 +17,6 @@ const menuItems: MenuItem[] = [
   { name: 'Suivi Crédit', path: '/suivi-credit', icone: '🛒', roles: ['Informaticien'] },
   { name: 'Historiques', path: '/historique', icone: '📜', roles: ['Proprietaire', 'Informaticien'] },
   { name: 'Succursales', path: '/succursales', icone: '🏪', roles: ['Proprietaire'] },
-  { name: 'Mode Sombre', path: '/mode-sombre', icone: '🌙', roles: ['Proprietaire', 'Informaticien'] },
-  { name: 'Paramètres', path: '/parametres', icone: '⚙️', roles: ['Proprietaire'] },
 ];
 
 const menuMobile: MenuItem[] = [
@@ -47,8 +45,8 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* SIDEBAR ORDINATEUR */}
-      <aside className="hidden md:flex bg-white dark:bg-gray-800 w-64 min-h-screen border-r border-gray-200 dark:border-gray-700 flex-col transition-colors flex-shrink-0">
+      {/* SIDEBAR ORDINATEUR - FIXED */}
+      <aside className="hidden md:flex md:fixed md:top-0 md:left-0 md:h-screen md:z-30 bg-white dark:bg-gray-800 w-64 border-r border-gray-200 dark:border-gray-700 flex-col transition-colors">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <img
             src="/logodieumerci.png"
@@ -57,7 +55,7 @@ export default function Sidebar() {
           />
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menusAutorises.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -109,7 +107,6 @@ export default function Sidebar() {
             );
           })}
 
-          {/* BOUTON DÉCONNEXION sur mobile */}
           <button
             onClick={handleDeconnexion}
             className="flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-1 min-w-0 text-red-600 dark:text-red-400"

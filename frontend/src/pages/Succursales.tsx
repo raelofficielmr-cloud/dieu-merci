@@ -16,7 +16,6 @@ export default function Succursales() {
     telephone: '',
   });
 
-  // Modal versement
   const [modalOuvert, setModalOuvert] = useState(false);
   const [succursaleActive, setSuccursaleActive] = useState<Succursale | null>(null);
   const [versementForm, setVersementForm] = useState({
@@ -25,7 +24,6 @@ export default function Succursales() {
     verseCDF: 0,
   });
 
-  // Modal modification
   const [modalModifOuvert, setModalModifOuvert] = useState(false);
   const [succursaleModif, setSuccursaleModif] = useState<Succursale | null>(null);
   const [formModif, setFormModif] = useState({
@@ -35,7 +33,6 @@ export default function Succursales() {
     detteActuelle: 0,
   });
 
-  // ========== CHARGER LES SUCCURSALES ==========
   const chargerSuccursales = async () => {
     try {
       setChargement(true);
@@ -43,7 +40,6 @@ export default function Succursales() {
       setSuccursales(data);
     } catch (error) {
       console.error(error);
-      alert('Erreur de connexion');
     } finally {
       setChargement(false);
     }
@@ -53,7 +49,6 @@ export default function Succursales() {
     chargerSuccursales();
   }, []);
 
-  // ========== AJOUTER ==========
   const ajouterSuccursale = async () => {
     if (!nouvelle.nom.trim()) return alert('Entrez un nom');
     try {
@@ -72,7 +67,6 @@ export default function Succursales() {
     }
   };
 
-  // ========== SUPPRIMER ==========
   const supprimerSuccursale = async (id: string) => {
     if (confirm('Supprimer cette succursale ?')) {
       try {
@@ -80,12 +74,10 @@ export default function Succursales() {
         setSuccursales(succursales.filter((s) => s._id !== id));
       } catch (error) {
         console.error(error);
-        alert('Erreur lors de la suppression');
       }
     }
   };
 
-  // ========== MODIFIER ==========
   const ouvrirModification = (s: Succursale) => {
     setSuccursaleModif(s);
     setFormModif({
@@ -113,7 +105,6 @@ export default function Succursales() {
     }
   };
 
-  // ========== VERSEMENT ==========
   const ouvrirVersement = (s: Succursale) => {
     setSuccursaleActive(s);
     setVersementForm({
@@ -138,8 +129,6 @@ export default function Succursales() {
         verseCDF: versementForm.verseCDF,
         taux: taux,
       });
-
-      // Recharger pour avoir la dette à jour
       await chargerSuccursales();
       setModalOuvert(false);
       setSuccursaleActive(null);
@@ -152,17 +141,16 @@ export default function Succursales() {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
           Mes Succursales
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
           Gérer vos succursales et leurs dettes
         </p>
       </div>
 
-      {/* Ajout succursale */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 md:p-6 mb-4 md:mb-6">
+        <h2 className="text-base md:text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
           <span>➕</span> Ajout d'une succursale
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
@@ -171,54 +159,53 @@ export default function Succursales() {
             placeholder="Nom Succursale"
             value={nouvelle.nom}
             onChange={(e) => setNouvelle({ ...nouvelle, nom: e.target.value })}
-            className="md:col-span-4 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+            className="md:col-span-4 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm"
           />
           <input
             type="text"
             placeholder="Adresse"
             value={nouvelle.adresse}
             onChange={(e) => setNouvelle({ ...nouvelle, adresse: e.target.value })}
-            className="md:col-span-4 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+            className="md:col-span-4 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm"
           />
           <input
             type="text"
             placeholder="Téléphone"
             value={nouvelle.telephone}
             onChange={(e) => setNouvelle({ ...nouvelle, telephone: e.target.value })}
-            className="md:col-span-2 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+            className="md:col-span-2 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm"
           />
           <button
             onClick={ajouterSuccursale}
-            className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg"
+            className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-sm"
           >
             Ajouter
           </button>
         </div>
       </div>
 
-      {/* Liste succursales */}
       {chargement ? (
         <p className="text-center py-12 text-gray-500">Chargement...</p>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {succursales.map((s) => (
             <div
               key={s._id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6"
             >
               <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white truncate">
                     {s.nom}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
                     📍 {s.adresse || '—'}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate">
                     📞 {s.telephone || '—'}
                   </p>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
                     onClick={() => ouvrirModification(s)}
                     className="text-blue-500 hover:text-blue-700 text-xl"
@@ -234,19 +221,19 @@ export default function Succursales() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-4 mb-4">
-                <div>
-                  <p className="text-xs font-bold text-red-600 dark:text-red-400 tracking-wider">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] md:text-xs font-bold text-red-600 dark:text-red-400 tracking-wider">
                     DETTE ACTUELLE
                   </p>
-                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  <p className="text-lg md:text-2xl font-bold text-red-600 dark:text-red-400 truncate">
                     {s.detteActuelle.toFixed(2)}{' '}
-                    <span className="text-sm">USD</span>
+                    <span className="text-xs md:text-sm">USD</span>
                   </p>
                 </div>
                 <button
                   onClick={() => ouvrirVersement(s)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 md:px-6 py-2 md:py-3 rounded-lg text-sm flex-shrink-0"
                 >
                   Encaisser
                 </button>
@@ -261,12 +248,12 @@ export default function Succursales() {
         </div>
       )}
 
-      {/* Modal modification */}
+      {/* MODAL MODIFICATION */}
       {modalModifOuvert && succursaleModif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
                 Modifier la succursale
               </h2>
               <button
@@ -277,7 +264,7 @@ export default function Succursales() {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 md:p-6 space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom</label>
                 <input
@@ -317,7 +304,7 @@ export default function Succursales() {
               </div>
             </div>
 
-            <div className="p-6 pt-0 flex gap-3">
+            <div className="p-4 md:p-6 pt-0 flex gap-3">
               <button
                 onClick={() => setModalModifOuvert(false)}
                 className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white font-bold py-2 rounded-lg"
@@ -335,12 +322,12 @@ export default function Succursales() {
         </div>
       )}
 
-      {/* Modal versement */}
+      {/* MODAL VERSEMENT */}
       {modalOuvert && succursaleActive && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
             <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">
-              <h2 className="text-xl font-bold">💰 Versement</h2>
+              <h2 className="text-lg md:text-xl font-bold">💰 Versement</h2>
               <button
                 onClick={() => setModalOuvert(false)}
                 className="text-white/80 hover:text-white text-2xl"
@@ -349,15 +336,17 @@ export default function Succursales() {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 md:p-6 space-y-4">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Nom de la succursale :</p>
                 <p className="font-bold text-gray-800 dark:text-white">{succursaleActive.nom}</p>
               </div>
 
-              <div className="bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500 rounded-lg p-4 flex items-center justify-between">
-                <span className="text-blue-700 dark:text-blue-300 font-medium">Dette actuelle :</span>
-                <span className="text-blue-700 dark:text-blue-300 font-bold text-lg">
+              <div className="bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500 rounded-lg p-3 md:p-4 flex items-center justify-between">
+                <span className="text-blue-700 dark:text-blue-300 font-medium text-sm">
+                  Dette actuelle :
+                </span>
+                <span className="text-blue-700 dark:text-blue-300 font-bold text-base md:text-lg">
                   {succursaleActive.detteActuelle.toFixed(2)} USD
                 </span>
               </div>
@@ -383,7 +372,7 @@ export default function Succursales() {
                     className="flex-1 px-3 py-3 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg text-lg font-bold"
                     placeholder="0"
                   />
-                  <div className="px-4 py-3 bg-gray-100 dark:bg-gray-600 rounded-lg font-bold text-gray-700 dark:text-white">
+                  <div className="px-3 md:px-4 py-3 bg-gray-100 dark:bg-gray-600 rounded-lg font-bold text-gray-700 dark:text-white text-sm">
                     CDF
                   </div>
                 </div>
@@ -396,14 +385,14 @@ export default function Succursales() {
                     className="flex-1 px-3 py-3 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg text-lg font-bold"
                     placeholder="0"
                   />
-                  <div className="px-4 py-3 bg-gray-100 dark:bg-gray-600 rounded-lg font-bold text-gray-700 dark:text-white">
+                  <div className="px-3 md:px-4 py-3 bg-gray-100 dark:bg-gray-600 rounded-lg font-bold text-gray-700 dark:text-white text-sm">
                     USD
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-6 pt-0 space-y-2">
+            <div className="p-4 md:p-6 pt-0 space-y-2">
               <button
                 onClick={validerVersement}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg"

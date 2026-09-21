@@ -17,13 +17,25 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
   margin: 0;
   padding: 0;
   width: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
   font-family: Arial, Helvetica, sans-serif;
   background-color: #F9F6F0;
   color: #1A1A1A;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  width: 100%;
 }
 
 .dark body {
@@ -31,6 +43,25 @@ html, body {
   color: #F9FAFB;
 }
 
-#root {
-  width: 100%;
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8B1A1A;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4B5563;
+}
+
+img, svg, video {
+  max-width: 100%;
+  height: auto;
 }

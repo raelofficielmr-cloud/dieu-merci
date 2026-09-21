@@ -3,6 +3,7 @@ import Layout from '../components/layout/Layout';
 import { useTaux } from '../context/TauxContext';
 import { useAuth } from '../context/AuthContext';
 import { parametreService, type Parametre } from '../services/parametreService';
+import { authService } from '../services/authService';
 
 export default function Parametres() {
   const { taux, setTaux } = useTaux();
@@ -19,7 +20,14 @@ export default function Parametres() {
     telephone: '',
   });
 
-  // Charger les paramètres
+  // Changement mot de passe
+  const [ancienMdp, setAncienMdp] = useState('');
+  const [nouveauMdp, setNouveauMdp] = useState('');
+  const [confirmationMdp, setConfirmationMdp] = useState('');
+  const [messageMdp, setMessageMdp] = useState('');
+  const [erreurMdp, setErreurMdp] = useState('');
+  const [chargementMdp, setChargementMdp] = useState(false);
+
   useEffect(() => {
     const charger = async () => {
       try {
@@ -54,19 +62,43 @@ export default function Parametres() {
     }
   };
 
+  const changerLeMotDePasse = async () => {
+    setErreurMdp('');
+    setMessageMdp('');
+
+    if (!ancienMdp) return setErreurMdp('Entrez votre ancien mot de passe');
+    if (nouveauMdp.length < 4) return setErreurMdp('Le nouveau mot de passe doit faire au moins 4 caractères');
+    if (nouveauMdp !== confirmationMdp) return setErreurMdp('Les deux mots de passe ne correspondent pas');
+
+    setChargementMdp(true);
+    try {
+      await authService.changerMotDePasse(ancienMdp, nouveauMdp);
+      setMessageMdp('✅ Mot de passe modifié avec succès !');
+      setAncienMdp('');
+      setNouveauMdp('');
+      setConfirmationMdp('');
+      setTimeout(() => setMessageMdp(''), 3000);
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'Erreur lors du changement';
+      setErreurMdp(msg);
+    } finally {
+      setChargementMdp(false);
+    }
+  };
+
   return (
     <Layout>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 max-w-2xl">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-8 max-w-2xl">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-6">
           ⚙️ Paramètres
         </h2>
 
         {/* Taux du jour */}
-        <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-600 p-6 rounded-lg mb-6">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">
+        <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-600 p-4 md:p-6 rounded-lg mb-6">
+          <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
             💱 Taux du jour (CDF)
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
             Modifiez le taux du jour. Il sera automatiquement synchronisé pour tous.
           </p>
 
@@ -76,7 +108,7 @@ export default function Parametres() {
               type="number"
               value={taux}
               onChange={(e) => setTaux(Number(e.target.value))}
-              className="w-40 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:border-green-500 text-lg font-bold"
+              className="w-32 md:w-40 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:border-green-500 text-lg font-bold"
             />
             <span className="text-sm font-bold text-gray-700 dark:text-gray-200">CDF</span>
           </div>
@@ -94,8 +126,8 @@ export default function Parametres() {
         </div>
 
         {/* Informations entreprise */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 p-6 rounded-lg mb-6">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 p-4 md:p-6 rounded-lg mb-6">
+          <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
             🏢 Informations de l'entreprise
           </h3>
 
@@ -143,13 +175,71 @@ export default function Parametres() {
 
         {/* Changement mot de passe (Propriétaire seulement) */}
         {proprietaire && (
-          <div className="bg-gray-50 dark:bg-gray-700 border-l-4 border-gray-400 p-6 rounded-lg">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">
-              🔐 Changer un mot de passe
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 md:p-6 rounded-lg">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
+              🔐 Changer mon mot de passe
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              (Fonctionnalité à venir avec le backend)
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Modifiez le mot de passe de connexion (Papa uniquement).
             </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Ancien mot de passe
+                </label>
+                <input
+                  type="password"
+                  value={ancienMdp}
+                  onChange={(e) => setAncienMdp(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  placeholder="••••"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Nouveau mot de passe
+                </label>
+                <input
+                  type="password"
+                  value={nouveauMdp}
+                  onChange={(e) => setNouveauMdp(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  placeholder="••••"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Confirmer le nouveau mot de passe
+                </label>
+                <input
+                  type="password"
+                  value={confirmationMdp}
+                  onChange={(e) => setConfirmationMdp(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  placeholder="••••"
+                />
+              </div>
+            </div>
+
+            {erreurMdp && (
+              <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-600 text-red-700 dark:text-red-300 p-3 rounded text-sm mt-3">
+                ⚠️ {erreurMdp}
+              </div>
+            )}
+            {messageMdp && (
+              <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-600 text-green-700 dark:text-green-300 p-3 rounded text-sm mt-3">
+                {messageMdp}
+              </div>
+            )}
+
+            <button
+              onClick={changerLeMotDePasse}
+              disabled={chargementMdp}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg mt-4"
+            >
+              {chargementMdp ? '⏳ Modification...' : '🔐 Changer le mot de passe'}
+            </button>
           </div>
         )}
       </div>

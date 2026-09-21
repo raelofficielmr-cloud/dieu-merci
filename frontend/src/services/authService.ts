@@ -12,4 +12,8 @@ export const authService = {
     const response = await api.post('/auth/login', { motDePasse });
     return response.data;
   },
+
+  changerMotDePasse: async (ancienMotDePasse: string, nouveauMotDePasse: string): Promise<void> => {
+    await api.put('/auth/changer-mot-de-passe', { ancienMotDePasse, nouveauMotDePasse });
+  },
 };

@@ -66,7 +66,6 @@ export default function Stock() {
 
   const [nouveauPoids, setNouveauPoids] = useState(0);
 
-  // ========== CHARGER LES PRODUITS ==========
   const chargerProduits = async () => {
     try {
       setChargement(true);
@@ -74,7 +73,6 @@ export default function Stock() {
       setProduits(data);
     } catch (error) {
       console.error('Erreur chargement produits:', error);
-      alert('Erreur de connexion au serveur');
     } finally {
       setChargement(false);
     }
@@ -84,7 +82,6 @@ export default function Stock() {
     chargerProduits();
   }, []);
 
-  // ========== FILTRES ==========
   const produitsFiltres = produits.filter((p) => {
     const matchRecherche = p.nom.toLowerCase().includes(recherche.toLowerCase());
     const matchCategorie =
@@ -96,7 +93,6 @@ export default function Stock() {
     return matchRecherche && matchCategorie && matchPrix;
   });
 
-  // ========== AJOUTER UN PRODUIT ==========
   const ajouterProduit = async () => {
     if (!nouveauProduit.nom.trim()) return alert('Entrez un nom');
     try {
@@ -124,7 +120,6 @@ export default function Stock() {
     }
   };
 
-  // ========== OUVRIR MODALS ==========
   const ouvrirAppro = (p: Produit) => {
     setProduitActif(p);
     setMouvementForm({
@@ -151,7 +146,6 @@ export default function Stock() {
     setModalPoids(true);
   };
 
-  // ========== VALIDER APPRO ==========
   const validerAppro = async () => {
     if (mouvementForm.quantite <= 0) return alert('Entrez une quantité');
     if (!produitActif) return;
@@ -180,11 +174,10 @@ export default function Stock() {
       setProduitActif(null);
     } catch (error) {
       console.error(error);
-      alert('Erreur lors de l\'approvisionnement');
+      alert("Erreur lors de l'approvisionnement");
     }
   };
 
-  // ========== VALIDER SORTIE ==========
   const validerSortie = async () => {
     if (mouvementForm.quantite <= 0) return alert('Entrez une quantité');
     if (!produitActif) return;
@@ -218,7 +211,6 @@ export default function Stock() {
     }
   };
 
-  // ========== VALIDER POIDS ==========
   const validerPoids = async () => {
     if (!produitActif) return;
     try {
@@ -234,7 +226,6 @@ export default function Stock() {
     }
   };
 
-  // ========== SUPPRIMER ==========
   const supprimerProduit = async (id: string) => {
     if (confirm('Supprimer ce produit ?')) {
       try {
@@ -247,7 +238,6 @@ export default function Stock() {
     }
   };
 
-  // ========== PDF ==========
   const genererJournal = async () => {
     const mouvementsDuJour = mouvements.filter((m) => m.date === dateJournal);
     await genererJournalPDF(dateJournal, mouvementsDuJour, produits as any);
@@ -264,52 +254,50 @@ export default function Stock() {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
           Gestion du Stock
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
           Contrôle complet des marchandises.
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 md:p-6 transition-colors">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-4 md:mb-6">
           <span>📦</span> Inventaire Global
         </h2>
 
-        {/* Mouvement du stock */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex flex-col md:flex-row items-center gap-4">
-          <label className="font-bold text-gray-700 dark:text-gray-200 whitespace-nowrap">
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 md:p-4 flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
+          <label className="font-bold text-gray-700 dark:text-gray-200 md:whitespace-nowrap text-sm md:text-base">
             Mouvement du stock
           </label>
           <input
             type="date"
             value={dateJournal}
             onChange={(e) => setDateJournal(e.target.value)}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg text-sm"
           />
           <button
             onClick={genererJournal}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg whitespace-nowrap"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 md:px-6 py-2 rounded-lg text-sm md:whitespace-nowrap"
           >
             GÉNÉRER LE JOURNAL
           </button>
         </div>
 
-        {/* Filtres */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mt-4 md:mt-6">
           <input
             type="text"
             placeholder="Rechercher un produit..."
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            className="md:col-span-4 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="md:col-span-4 px-3 md:px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
 
           <select
             value={filtreCategorie}
             onChange={(e) => setFiltreCategorie(e.target.value)}
-            className="md:col-span-3 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+            className="md:col-span-3 px-3 md:px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm"
           >
             <option>Toutes les catégories</option>
             {categoriesDisponibles.map((c) => (
@@ -320,7 +308,7 @@ export default function Stock() {
           <select
             value={filtrePrix}
             onChange={(e) => setFiltrePrix(e.target.value)}
-            className="md:col-span-3 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+            className="md:col-span-3 px-3 md:px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm"
           >
             <option>Tous</option>
             <option>Sans prix</option>
@@ -330,14 +318,14 @@ export default function Stock() {
           {info ? (
             <button
               onClick={() => setModalNouveauProduit(true)}
-              className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+              className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
             >
               <span>➕</span> Nouveau
             </button>
           ) : (
             <button
               onClick={imprimerInventaire}
-              className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+              className="md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
             >
               🖨️ Imprimer
             </button>
@@ -348,28 +336,27 @@ export default function Stock() {
           <div className="mt-3 flex justify-end">
             <button
               onClick={imprimerInventaire}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 text-sm"
             >
               🖨️ Imprimer l'inventaire
             </button>
           </div>
         )}
 
-        {/* Tableau */}
         {chargement ? (
           <p className="text-center py-12 text-gray-500">Chargement...</p>
         ) : (
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="mt-4 md:mt-6 overflow-x-auto">
+            <table className="w-full text-xs md:text-sm" style={{ minWidth: '700px' }}>
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">N°</th>
-                  <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">PRODUIT</th>
-                  <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">POIDS</th>
-                  <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">QUANTITÉ</th>
-                  <th className="text-right px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">P.U (USD)</th>
-                  <th className="text-right px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">TOTAL (USD)</th>
-                  <th className="text-center px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">ACTIONS</th>
+                  <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">N°</th>
+                  <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">PRODUIT</th>
+                  <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">POIDS</th>
+                  <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">QUANTITÉ</th>
+                  <th className="text-right px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">P.U (USD)</th>
+                  <th className="text-right px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">TOTAL</th>
+                  <th className="text-center px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -383,46 +370,43 @@ export default function Stock() {
                         sansPrix ? 'bg-red-50 dark:bg-red-900/20' : ''
                       }`}
                     >
-                      <td className="px-3 py-4 text-gray-700 dark:text-gray-300">{index + 1}</td>
-                      <td className="px-3 py-4">
+                      <td className="px-2 md:px-3 py-3 text-gray-700 dark:text-gray-300">{index + 1}</td>
+                      <td className="px-2 md:px-3 py-3">
                         <p className="font-bold text-gray-800 dark:text-white">{p.nom}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400">
                           {p.description || '—'}
                         </p>
                       </td>
                       <td
-                        className="px-3 py-4 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700"
+                        className="px-2 md:px-3 py-3 text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 whitespace-nowrap"
                         onClick={() => ouvrirPoids(p)}
-                        title="Cliquer pour modifier le poids"
                       >
                         {p.poids} Kg ✏️
                       </td>
-                      <td className="px-3 py-4">
+                      <td className="px-2 md:px-3 py-3 whitespace-nowrap">
                         <span className="text-green-600 dark:text-green-400 font-bold">
                           {p.quantite} {p.unite}
                         </span>
                       </td>
-                      <td className="px-3 py-4 text-right font-bold text-gray-800 dark:text-white">
+                      <td className="px-2 md:px-3 py-3 text-right font-bold text-gray-800 dark:text-white whitespace-nowrap">
                         {p.prixUnitaire.toFixed(2)}
                       </td>
-                      <td className="px-3 py-4 text-right font-bold text-blue-600 dark:text-blue-400">
+                      <td className="px-2 md:px-3 py-3 text-right font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                         {total.toFixed(2)}
                       </td>
-                      <td className="px-3 py-4">
+                      <td className="px-2 md:px-3 py-3">
                         <div className="flex items-center justify-center gap-2">
                           {info && (
                             <>
                               <button
                                 onClick={() => ouvrirAppro(p)}
-                                className="bg-green-500 hover:bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold"
-                                title="Approvisionner"
+                                className="bg-green-500 hover:bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold flex-shrink-0"
                               >
                                 +
                               </button>
                               <button
                                 onClick={() => ouvrirSortie(p)}
-                                className="bg-orange-500 hover:bg-orange-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold"
-                                title="Sortie de stock"
+                                className="bg-orange-500 hover:bg-orange-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold flex-shrink-0"
                               >
                                 −
                               </button>
@@ -433,7 +417,6 @@ export default function Stock() {
                             <button
                               onClick={() => supprimerProduit(p._id)}
                               className="text-red-500 hover:text-red-700 text-lg"
-                              title="Supprimer"
                             >
                               🗑️
                             </button>
@@ -442,7 +425,6 @@ export default function Stock() {
                           <button
                             onClick={() => imprimerProduit(p)}
                             className="text-blue-500 hover:text-blue-700 text-lg"
-                            title="Imprimer"
                           >
                             🖨️
                           </button>
@@ -464,16 +446,15 @@ export default function Stock() {
         )}
       </div>
 
-      {/* ========== MODAL NOUVEAU PRODUIT ========== */}
       {modalNouveauProduit && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">Nouveau Produit</h2>
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Nouveau Produit</h2>
               <button onClick={() => setModalNouveauProduit(false)} className="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 md:p-6 space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom de l'article</label>
                 <input
@@ -510,7 +491,7 @@ export default function Stock() {
               </div>
             </div>
 
-            <div className="p-6 pt-0">
+            <div className="p-4 md:p-6 pt-0">
               <button onClick={ajouterProduit} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg">
                 Ajouter
               </button>
@@ -519,18 +500,17 @@ export default function Stock() {
         </div>
       )}
 
-      {/* ========== MODAL APPRO ========== */}
       {modalAppro && produitActif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
                 Approvisionner : {produitActif.nom}
               </h2>
               <button onClick={() => setModalAppro(false)} className="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 md:p-6 space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
                 <input
@@ -566,7 +546,7 @@ export default function Stock() {
               </div>
             </div>
 
-            <div className="p-6 pt-0">
+            <div className="p-4 md:p-6 pt-0">
               <button onClick={validerAppro} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg">
                 Approvisionner
               </button>
@@ -575,18 +555,17 @@ export default function Stock() {
         </div>
       )}
 
-      {/* ========== MODAL SORTIE ========== */}
       {modalSortie && produitActif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
                 Sortie : {produitActif.nom}
               </h2>
               <button onClick={() => setModalSortie(false)} className="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 md:p-6 space-y-4">
               <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded text-sm">
                 Stock actuel : <strong>{produitActif.quantite} {produitActif.unite}</strong>
               </div>
@@ -624,7 +603,7 @@ export default function Stock() {
               </div>
             </div>
 
-            <div className="p-6 pt-0">
+            <div className="p-4 md:p-6 pt-0">
               <button onClick={validerSortie} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg">
                 Retirer du stock
               </button>
@@ -633,18 +612,17 @@ export default function Stock() {
         </div>
       )}
 
-      {/* ========== MODAL POIDS ========== */}
       {modalPoids && produitActif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
                 Poids : {produitActif.nom}
               </h2>
               <button onClick={() => setModalPoids(false)} className="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Poids (Kg)</label>
               <input
                 type="number"
@@ -655,7 +633,7 @@ export default function Stock() {
               />
             </div>
 
-            <div className="p-6 pt-0">
+            <div className="p-4 md:p-6 pt-0">
               <button onClick={validerPoids} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg">
                 Enregistrer
               </button>

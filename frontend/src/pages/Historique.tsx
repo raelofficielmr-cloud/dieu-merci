@@ -12,7 +12,6 @@ export default function Historique() {
   const [filtreDate, setFiltreDate] = useState('');
   const [grouperParMois, setGrouperParMois] = useState(false);
 
-  // Charger depuis MongoDB
   const chargerHistorique = async () => {
     try {
       setChargement(true);
@@ -20,7 +19,6 @@ export default function Historique() {
       setActivites(data);
     } catch (error) {
       console.error(error);
-      alert('Erreur de connexion');
     } finally {
       setChargement(false);
     }
@@ -30,12 +28,10 @@ export default function Historique() {
     chargerHistorique();
   }, []);
 
-  // Liste des succursales uniques
   const succursalesUniques = Array.from(
     new Set(activites.filter((a) => a.succursale).map((a) => a.succursale!))
   );
 
-  // Filtrer
   const activitesFiltrees = activites.filter((a) => {
     const matchType = a.type === filtreActivite;
     const matchSuccursale =
@@ -57,7 +53,6 @@ export default function Historique() {
     .filter((a) => a.type === 'Versement')
     .reduce((acc, a) => acc + (a.montant || 0), 0);
 
-  // Supprimer
   const supprimerLigne = async (id: string) => {
     if (confirm("Supprimer cette ligne de l'historique ?")) {
       try {
@@ -65,7 +60,6 @@ export default function Historique() {
         setActivites(activites.filter((a) => a._id !== id));
       } catch (error) {
         console.error(error);
-        alert('Erreur lors de la suppression');
       }
     }
   };
@@ -106,62 +100,60 @@ export default function Historique() {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Historiques</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">Historiques</h1>
+        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
           Suivi des livraisons, versements et approvisionnements.
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 md:p-6 transition-colors">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 mb-4 md:mb-6">
+          <h2 className="text-base md:text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
             🔄 Historiques des activités
           </h2>
 
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3">
             <input
               type="text"
               placeholder="Rechercher..."
               value={recherche}
               onChange={(e) => setRecherche(e.target.value)}
-              className="md:w-64 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+              className="md:w-64 px-3 md:px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm"
             />
 
             <button
               onClick={imprimerHistorique}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2 whitespace-nowrap"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg flex items-center justify-center gap-2 whitespace-nowrap text-sm"
             >
               🖨️ Imprimer
             </button>
           </div>
         </div>
 
-        {/* Totaux */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">Valeur totale :</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 md:p-4">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Valeur totale :</p>
+            <p className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400">
               {valeurTotale.toFixed(2)} USD
             </p>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">Total crédits</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 md:p-4">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Total crédits</p>
+            <p className="text-lg md:text-2xl font-bold text-green-600 dark:text-green-400">
               {totalCredits.toFixed(2)} USD
             </p>
           </div>
         </div>
 
-        {/* Filtres */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">
               Quelle activité ?
             </label>
             <select
               value={filtreActivite}
               onChange={(e) => setFiltreActivite(e.target.value as TypeActivite)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1 text-sm"
             >
               <option value="Livraison">Les livraisons aux POS</option>
               <option value="Approvisionnement">Les approvisionnements</option>
@@ -171,13 +163,13 @@ export default function Historique() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">
               Succursale :
             </label>
             <select
               value={filtreSuccursale}
               onChange={(e) => setFiltreSuccursale(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1 text-sm"
             >
               <option>Toutes les succursales</option>
               {succursalesUniques.map((s) => (
@@ -187,19 +179,19 @@ export default function Historique() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">
               Date :
             </label>
             <input
               type="date"
               value={filtreDate}
               onChange={(e) => setFiltreDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1 text-sm"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">
               Option de vue
             </label>
             <div className="flex items-center gap-2 mt-2">
@@ -210,14 +202,13 @@ export default function Historique() {
                 onChange={(e) => setGrouperParMois(e.target.checked)}
                 className="w-5 h-5 accent-blue-600"
               />
-              <label htmlFor="grouper" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+              <label htmlFor="grouper" className="text-xs md:text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                 Grouper par mois
               </label>
             </div>
           </div>
         </div>
 
-        {/* Tableau */}
         {chargement ? (
           <p className="text-center py-12 text-gray-500">Chargement...</p>
         ) : (
@@ -226,28 +217,28 @@ export default function Historique() {
               Object.entries(activitesGroupees).map(([mois, list]) => (
                 <div key={mois} className="mb-6">
                   <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-t-lg flex items-center justify-between">
-                    <h3 className="font-bold text-gray-800 dark:text-white">{mois}</h3>
-                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                    <h3 className="font-bold text-gray-800 dark:text-white text-sm md:text-base">{mois}</h3>
+                    <span className="text-xs md:text-sm font-bold text-blue-600 dark:text-blue-400">
                       Total : {list.reduce((acc, a) => acc + (a.montant || 0), 0).toFixed(2)} USD
                     </span>
                   </div>
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs md:text-sm" style={{ minWidth: '500px' }}>
                     <tbody>
                       {list.map((a) => (
                         <tr key={a._id} className="border-b border-gray-100 dark:border-gray-700">
-                          <td className="px-3 py-3 text-gray-600 dark:text-gray-300">
+                          <td className="px-2 md:px-3 py-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
                             {formaterDate(a.date)}
                           </td>
-                          <td className="px-3 py-3 font-medium text-gray-800 dark:text-white">
+                          <td className="px-2 md:px-3 py-3 font-medium text-gray-800 dark:text-white">
                             {a.succursale || a.produit}
                           </td>
-                          <td className="px-3 py-3 text-right text-gray-500 dark:text-gray-400">
+                          <td className="px-2 md:px-3 py-3 text-right text-gray-500 dark:text-gray-400 whitespace-nowrap">
                             {a.quantite ? `${a.quantite} ${a.unite}` : ''}
                           </td>
-                          <td className="px-3 py-3 text-right font-bold text-green-600 dark:text-green-400">
+                          <td className="px-2 md:px-3 py-3 text-right font-bold text-green-600 dark:text-green-400 whitespace-nowrap">
                             {a.montant ? `${a.montant.toFixed(2)} USD` : ''}
                           </td>
-                          <td className="px-3 py-3 text-center">
+                          <td className="px-2 md:px-3 py-3 text-center">
                             <button
                               onClick={() => supprimerLigne(a._id)}
                               className="text-red-500 hover:text-red-700"
@@ -262,22 +253,22 @@ export default function Historique() {
                 </div>
               ))
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full text-xs md:text-sm" style={{ minWidth: '600px' }}>
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">DATE</th>
+                    <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">DATE</th>
                     {filtreActivite === 'Approvisionnement' || filtreActivite === 'Sortie' ? (
                       <>
-                        <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">PRODUIT</th>
-                        <th className="text-right px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">QUANTITÉ</th>
+                        <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">PRODUIT</th>
+                        <th className="text-right px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">QUANTITÉ</th>
                       </>
                     ) : (
                       <>
-                        <th className="text-left px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">SUCCURSALE</th>
-                        <th className="text-right px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">MONTANT (USD)</th>
+                        <th className="text-left px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">SUCCURSALE</th>
+                        <th className="text-right px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">MONTANT</th>
                       </>
                     )}
-                    <th className="text-center px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">ANNULER</th>
+                    <th className="text-center px-2 md:px-3 py-3 text-gray-500 dark:text-gray-400 font-medium">ANNULER</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -286,29 +277,29 @@ export default function Historique() {
                       key={a._id}
                       className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                     >
-                      <td className="px-3 py-4 text-gray-600 dark:text-gray-300">
+                      <td className="px-2 md:px-3 py-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">
                         {formaterDate(a.date)}
                       </td>
                       {filtreActivite === 'Approvisionnement' || filtreActivite === 'Sortie' ? (
                         <>
-                          <td className="px-3 py-4 font-medium text-gray-800 dark:text-white">
+                          <td className="px-2 md:px-3 py-3 font-medium text-gray-800 dark:text-white">
                             {a.produit}
                           </td>
-                          <td className="px-3 py-4 text-right text-gray-700 dark:text-gray-300">
+                          <td className="px-2 md:px-3 py-3 text-right text-gray-700 dark:text-gray-300 whitespace-nowrap">
                             {a.quantite} {a.unite}
                           </td>
                         </>
                       ) : (
                         <>
-                          <td className="px-3 py-4 font-medium text-gray-800 dark:text-white">
+                          <td className="px-2 md:px-3 py-3 font-medium text-gray-800 dark:text-white">
                             {a.succursale}
                           </td>
-                          <td className="px-3 py-4 text-right font-bold text-green-600 dark:text-green-400">
+                          <td className="px-2 md:px-3 py-3 text-right font-bold text-green-600 dark:text-green-400 whitespace-nowrap">
                             {a.montant?.toFixed(2)}
                           </td>
                         </>
                       )}
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 md:px-3 py-3 text-center">
                         <button
                           onClick={() => supprimerLigne(a._id)}
                           className="text-red-500 hover:text-red-700"

@@ -4,38 +4,14 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 
 const TITRES_PAGES: Record<string, { titre: string; sousTitre: string }> = {
-  '/': {
-    titre: 'Tableau de bord',
-    sousTitre: 'Aperçu en temps réel de votre activité.',
-  },
-  '/stock': {
-    titre: 'Gestion du Stock',
-    sousTitre: 'Contrôle complet des marchandises.',
-  },
-  '/structure-prix': {
-    titre: 'Structure de Prix',
-    sousTitre: 'Imprimer facilement la structure de prix.',
-  },
-  '/suivi-credit': {
-    titre: 'Suivi Crédit',
-    sousTitre: 'Suivi des crédits clients.',
-  },
-  '/historique': {
-    titre: 'Historiques',
-    sousTitre: 'Suivi des livraisons, versements et approvisionnements.',
-  },
-  '/succursales': {
-    titre: 'Mes Succursales',
-    sousTitre: 'Gérer vos succursales et leurs dettes.',
-  },
-  '/mode-sombre': {
-    titre: 'Mode Sombre',
-    sousTitre: 'Basculez entre le thème clair et sombre.',
-  },
-  '/parametres': {
-    titre: 'Paramètres',
-    sousTitre: 'Configuration du système.',
-  },
+  '/': { titre: 'Tableau de bord', sousTitre: 'Aperçu en temps réel de votre activité.' },
+  '/stock': { titre: 'Gestion du Stock', sousTitre: 'Contrôle complet des marchandises.' },
+  '/structure-prix': { titre: 'Structure de Prix', sousTitre: 'Imprimer facilement la structure de prix.' },
+  '/suivi-credit': { titre: 'Suivi Crédit', sousTitre: 'Suivi des crédits clients.' },
+  '/historique': { titre: 'Historiques', sousTitre: 'Suivi des livraisons, versements et approvisionnements.' },
+  '/succursales': { titre: 'Mes Succursales', sousTitre: 'Gérer vos succursales et leurs dettes.' },
+  '/mode-sombre': { titre: 'Mode Sombre', sousTitre: 'Basculez entre le thème clair et sombre.' },
+  '/parametres': { titre: 'Paramètres', sousTitre: 'Configuration du système.' },
 };
 
 export default function Header() {
@@ -52,73 +28,56 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 md:px-6 py-3 md:py-4 transition-colors">
-      <div className="flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 md:px-6 py-2 md:py-4 transition-colors">
+      <div className="flex items-center justify-between gap-2 md:gap-3">
         {/* LOGO */}
         <img
-          src="/logoets.png"
+          src="/logodieumerci.png"
           alt="Dieu Merci"
-          className="h-12 w-12 md:h-14 md:w-14 object-contain flex-shrink-0"
+          className="h-10 w-10 md:h-14 md:w-14 object-contain flex-shrink-0"
         />
 
         {/* TITRE + SOUS-TITRE */}
         <div className="min-w-0 flex-1">
-          <h1 className="text-base md:text-2xl font-bold text-gray-800 dark:text-white leading-tight">
+          <h1 className="text-sm md:text-2xl font-bold text-gray-800 dark:text-white leading-tight truncate">
             {page.titre}
           </h1>
-          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 leading-tight">
+          <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-tight truncate">
             {page.sousTitre}
           </p>
         </div>
 
-        {/* CAPSULE BADGE + CLOCHE (mobile) */}
-        <div className="flex md:hidden items-center bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full px-2 py-1.5 gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1.5">
-            <div className={`w-3 h-3 rounded-full ${proprietaire ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-            <span className={`text-[10px] font-bold ${proprietaire ? 'text-gray-700 dark:text-gray-200' : 'text-blue-700 dark:text-blue-300'}`}>
-              {proprietaire ? 'PROPRIÉTAIRE' : 'INFORMATICIEN'}
-            </span>
-          </div>
-
-          <div className="w-px h-4 bg-gray-300 dark:bg-gray-600"></div>
-
-          <Link to="/notifications" className="relative p-0.5">
-            <span className="text-lg">🔔</span>
-            {notifications > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
-                {notifications > 99 ? '99+' : notifications}
-              </span>
-            )}
-          </Link>
-        </div>
-
-        {/* VERSION ORDINATEUR */}
-        <div className="hidden md:flex items-center gap-3 flex-shrink-0">
-          <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full px-3 py-1.5">
+        {/* BOUTONS MOBILE + DESKTOP */}
+        <div className="flex items-center gap-1 md:gap-3 flex-shrink-0">
+          {/* Badge propriétaire (desktop uniquement) */}
+          <div className="hidden md:flex items-center gap-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full px-3 py-1.5">
             <div className={`w-2 h-2 rounded-full ${proprietaire ? 'bg-green-500' : 'bg-blue-500'}`}></div>
             <span className={`text-xs font-bold ${proprietaire ? 'text-gray-700 dark:text-gray-200' : 'text-blue-700 dark:text-blue-300'}`}>
               {proprietaire ? 'PROPRIÉTAIRE' : 'INFORMATICIEN'}
             </span>
           </div>
 
+          {/* Mode sombre - VISIBLE MOBILE + DESKTOP */}
           <button
             onClick={basculer}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-xl"
+            className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-lg md:text-xl"
             title="Mode sombre"
           >
             {sombre ? '☀️' : '🌙'}
           </button>
 
+          {/* Paramètres - VISIBLE MOBILE + DESKTOP */}
           <Link
             to="/parametres"
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-xl"
+            className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-lg md:text-xl"
             title="Paramètres"
           >
             ⚙️
           </Link>
 
-          <button className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-            <span className="text-xl">🔔</span>
+          {/* Notifications */}
+          <button className="relative p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+            <span className="text-lg md:text-xl">🔔</span>
             {notifications > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
                 {notifications > 99 ? '99+' : notifications}
