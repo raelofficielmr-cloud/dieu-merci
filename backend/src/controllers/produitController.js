@@ -89,7 +89,6 @@ export const approvisionner = async (req, res) => {
       utilisateur: 'Informaticien',
     });
 
-    // Notification : Approvisionnement
     await creerNotification(
       'Approvisionnement',
       '➕ Approvisionnement',
@@ -97,7 +96,6 @@ export const approvisionner = async (req, res) => {
       { produitId: produit._id, nom: produit.nom, quantite }
     );
 
-    // Notification : Stock bas (si sous le seuil après appro)
     if (produit.quantite < produit.seuilAlerte) {
       await creerNotification(
         'StockBas',
@@ -133,7 +131,6 @@ export const sortieStock = async (req, res) => {
       utilisateur: 'Informaticien',
     });
 
-    // Notification : Sortie
     await creerNotification(
       'Sortie',
       '📤 Sortie de stock',
@@ -141,7 +138,6 @@ export const sortieStock = async (req, res) => {
       { produitId: produit._id, nom: produit.nom, quantite }
     );
 
-    // Notification : Stock bas (si sous le seuil après sortie)
     if (produit.quantite < produit.seuilAlerte) {
       await creerNotification(
         'StockBas',
