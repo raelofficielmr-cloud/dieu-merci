@@ -6,6 +6,7 @@ type Role = 'Proprietaire' | 'Informaticien';
 interface AuthContextType {
   role: Role | null;
   nom: string;
+  chargement: boolean;
   connexion: (motDePasse: string) => Promise<boolean>;
   deconnexion: () => void;
   estProprietaire: () => boolean;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role | null>(null);
   const [nom, setNom] = useState<string>('');
+  const [chargement, setChargement] = useState<boolean>(true);
 
   useEffect(() => {
     const token = localStorage.getItem('dieumerci_token');
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('dieumerci_user');
       }
     }
+    setChargement(false);
   }, []);
 
   const connexion = async (motDePasse: string): Promise<boolean> => {
@@ -59,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ role, nom, connexion, deconnexion, estProprietaire, estInformaticien }}
+      value={{ role, nom, chargement, connexion, deconnexion, estProprietaire, estInformaticien }}
     >
       {children}
     </AuthContext.Provider>

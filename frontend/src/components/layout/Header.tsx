@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from './NotificationBell';
+import IAChatbot from './IAChatbot';
 
 const TITRES_PAGES: Record<string, { titre: string; sousTitre: string }> = {
   '/': { titre: 'Tableau de bord', sousTitre: 'Aperçu en temps réel de votre activité.' },
@@ -70,6 +71,8 @@ export default function Header() {
           <NotificationBell />
         </div>
       </div>
+
+      <IAChatbot />
     </header>
   );
 }

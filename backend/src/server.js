@@ -11,6 +11,7 @@ import livraisonRoutes from './routes/livraisons.js';
 import parametreRoutes from './routes/parametres.js';
 import historiqueRoutes from './routes/historique.js';
 import notificationRoutes from './routes/notifications.js';
+import iaRoutes from './routes/ia.js';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/api/livraisons', livraisonRoutes);
 app.use('/api/parametres', parametreRoutes);
 app.use('/api/historique', historiqueRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ia', iaRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {

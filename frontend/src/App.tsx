@@ -15,8 +15,24 @@ import ModeSombre from './pages/ModeSombre';
 import Parametres from './pages/Parametres';
 
 function RouteProtegee({ children }: { children: React.ReactNode }) {
-  const { role } = useAuth();
-  if (!role) return <Navigate to="/login" replace />;
+  const { role, chargement } = useAuth();
+
+  // Attendre la fin du chargement avant de décider
+  if (chargement) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-gray-500">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
+
   return <>{children}</>;
 }
 
