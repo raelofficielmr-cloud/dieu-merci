@@ -69,6 +69,7 @@ export const supprimerProduit = async (req, res) => {
   }
 };
 
+// ========== APPROVISIONNEMENT ==========
 export const approvisionner = async (req, res) => {
   try {
     const { quantite, unite } = req.body;
@@ -111,6 +112,7 @@ export const approvisionner = async (req, res) => {
   }
 };
 
+// ========== SORTIE DE STOCK ==========
 export const sortieStock = async (req, res) => {
   try {
     const { quantite, unite } = req.body;
