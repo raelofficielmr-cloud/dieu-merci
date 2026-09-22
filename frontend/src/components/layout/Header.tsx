@@ -3,7 +3,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from './NotificationBell';
 import IAChatbot from './IAChatbot';
-
 const TITRES_PAGES: Record<string, { titre: string; sousTitre: string }> = {
   '/': { titre: 'Tableau de bord', sousTitre: 'Aperçu en temps réel de votre activité.' },
   '/stock': { titre: 'Gestion du Stock', sousTitre: 'Contrôle complet des marchandises.' },
@@ -68,11 +67,11 @@ export default function Header() {
             ⚙️
           </Link>
 
-          <NotificationBell />
+                    <NotificationBell />
         </div>
       </div>
 
       <IAChatbot />
     </header>
-  );
+  )
 }

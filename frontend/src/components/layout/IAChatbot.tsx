@@ -60,7 +60,6 @@ export default function IAChatbot() {
 
   return (
     <>
-      {/* Bouton flottant */}
       <button
         onClick={() => setOuvert(!ouvert)}
         className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-40 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl transition-all"
@@ -69,16 +68,13 @@ export default function IAChatbot() {
         {ouvert ? '✕' : '🤖'}
       </button>
 
-      {/* Panneau chat */}
       {ouvert && (
         <div className="fixed bottom-40 md:bottom-24 right-4 md:right-6 z-40 w-[calc(100vw-2rem)] max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col max-h-[70vh]">
-          {/* En-tête */}
           <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-3 rounded-t-lg">
             <h3 className="font-bold text-sm md:text-base">🤖 Assistant IA Dieu Merci</h3>
             <p className="text-xs opacity-90">Posez-moi une question</p>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[300px]">
             {messages.map((m, i) => (
               <div
@@ -108,7 +104,6 @@ export default function IAChatbot() {
             <div ref={finMessagesRef} />
           </div>
 
-          {/* Suggestions (si peu de messages) */}
           {messages.length <= 1 && (
             <div className="p-2 border-t border-gray-200 dark:border-gray-700">
               <p className="text-[10px] text-gray-500 mb-2 px-1">💡 Suggestions :</p>
@@ -126,7 +121,6 @@ export default function IAChatbot() {
             </div>
           )}
 
-          {/* Saisie */}
           <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
             <input
               type="text"

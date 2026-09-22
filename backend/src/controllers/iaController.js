@@ -1,10 +1,11 @@
-import { GoogleGenAI } from '@google/genai';
+import 'dotenv/config';
+import Groq from 'groq-sdk';
 import Produit from '../models/Produit.js';
 import Succursale from '../models/Succursale.js';
 import Versement from '../models/Versement.js';
 import Parametre from '../models/Parametre.js';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const getContexte = async () => {
   const [produits, succursales, versements, parametres] = await Promise.all([
@@ -61,27 +62,18 @@ export const chat = async (req, res) => {
       return res.status(400).json({ message: 'Message requis' });
     }
 
+    if (!process.env.GROQ_API_KEY) {
+      return res.status(500).json({ message: 'Clé API Groq manquante' });
+    }
+
     const contexte = await getContexte();
 
-    // Essayer plusieurs modèles dans l'ordre
-    const modeles = [
-      'gemini-3.8-flash',
-      'gemini-3.6-flash',
-      'gemini-3.0-flash',
-      'gemini-2.0-flash',
-      'gemini-flash-latest',
-    ];
-
-    let reponse = null;
-    let derniereErreur = null;
-
-    for (const modele of modeles) {
-      try {
-        const response = await ai.models.generateContent({
-          model: modele,
-          contents: message,
-          config: {
-            systemInstruction: `Tu es un assistant IA pour Ets DIEU MERCI, une entreprise de quincaillerie à Kinshasa.
+    const completion = await groq.chat.completions.create({
+      model: 'qwen/qwen3.8-27b',
+      messages: [
+        {
+          role: 'system',
+          content: `Tu es un assistant IA pour Ets DIEU MERCI, une entreprise de quincaillerie à Kinshasa.
 Tu aides Papa (le propriétaire) à gérer son entreprise.
 
 RÈGLES :
@@ -93,29 +85,21 @@ RÈGLES :
 - Si tu ne sais pas, dis "Je n'ai pas cette information"
 
 ${contexte}`,
-          },
-        });
+        },
+        {
+          role: 'user',
+          content: message,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+    });
 
-        reponse = response.text;
-        console.log(`✅ Modèle utilisé : ${modele}`);
-        break;
-      } catch (err) {
-        console.log(`❌ Modèle ${modele} échoué : ${err.message}`);
-        derniereErreur = err;
-      }
-    }
-
-    if (!reponse) {
-      console.error('❌ Aucun modèle disponible :', derniereErreur?.message);
-      return res.status(500).json({
-        message: 'Erreur lors de la réponse IA',
-        details: derniereErreur?.message,
-      });
-    }
+    const reponse = completion.choices[0]?.message?.content || 'Pas de réponse';
 
     res.json({ reponse });
   } catch (error) {
-    console.error('Erreur chat IA :', error);
+    console.error('Erreur chat IA :', error.message);
     res.status(500).json({ message: 'Erreur lors de la réponse IA' });
   }
 };
