@@ -185,10 +185,11 @@ export default function Stock() {
       return alert('Quantité supérieure au stock disponible');
 
     try {
-      const updated = await produitService.update(produitActif._id, {
-        quantite: produitActif.quantite - mouvementForm.quantite,
-        unite: mouvementForm.unite,
-      });
+      const updated = await produitService.sortie(
+        produitActif._id,
+        mouvementForm.quantite,
+        mouvementForm.unite
+      );
       setProduits(produits.map((p) => (p._id === updated._id ? updated : p)));
 
       setMouvements([
@@ -401,12 +402,14 @@ export default function Stock() {
                               <button
                                 onClick={() => ouvrirAppro(p)}
                                 className="bg-green-500 hover:bg-green-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold flex-shrink-0"
+                                title="Approvisionner"
                               >
                                 +
                               </button>
                               <button
                                 onClick={() => ouvrirSortie(p)}
                                 className="bg-orange-500 hover:bg-orange-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold flex-shrink-0"
+                                title="Sortie"
                               >
                                 −
                               </button>
@@ -417,6 +420,7 @@ export default function Stock() {
                             <button
                               onClick={() => supprimerProduit(p._id)}
                               className="text-red-500 hover:text-red-700 text-lg"
+                              title="Supprimer"
                             >
                               🗑️
                             </button>
@@ -425,6 +429,7 @@ export default function Stock() {
                           <button
                             onClick={() => imprimerProduit(p)}
                             className="text-blue-500 hover:text-blue-700 text-lg"
+                            title="Imprimer"
                           >
                             🖨️
                           </button>
@@ -446,6 +451,7 @@ export default function Stock() {
         )}
       </div>
 
+      {/* MODAL NOUVEAU PRODUIT */}
       {modalNouveauProduit && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
@@ -500,6 +506,7 @@ export default function Stock() {
         </div>
       )}
 
+      {/* MODAL APPRO */}
       {modalAppro && produitActif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
@@ -555,6 +562,7 @@ export default function Stock() {
         </div>
       )}
 
+      {/* MODAL SORTIE */}
       {modalSortie && produitActif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
@@ -612,6 +620,7 @@ export default function Stock() {
         </div>
       )}
 
+      {/* MODAL POIDS */}
       {modalPoids && produitActif && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">

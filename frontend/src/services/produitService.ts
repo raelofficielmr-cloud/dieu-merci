@@ -23,19 +23,28 @@ export const produitService = {
     const response = await api.get('/produits');
     return response.data;
   },
+
   create: async (produit: Partial<Produit>): Promise<Produit> => {
     const response = await api.post('/produits', produit);
     return response.data;
   },
+
   update: async (id: string, produit: Partial<Produit>): Promise<Produit> => {
     const response = await api.put(`/produits/${id}`, produit);
     return response.data;
   },
+
   delete: async (id: string): Promise<void> => {
     await api.delete(`/produits/${id}`);
   },
+
   approvisionner: async (id: string, quantite: number, unite: string): Promise<Produit> => {
     const response = await api.post(`/produits/${id}/approvisionner`, { quantite, unite });
+    return response.data;
+  },
+
+  sortie: async (id: string, quantite: number, unite: string): Promise<Produit> => {
+    const response = await api.post(`/produits/${id}/sortie`, { quantite, unite });
     return response.data;
   },
 };
