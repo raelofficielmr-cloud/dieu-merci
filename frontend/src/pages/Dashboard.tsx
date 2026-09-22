@@ -16,14 +16,21 @@ import {
   YAxis,
 } from 'recharts';
 
-const COULEURS_CATEGORIES: Record<string, string> = {
-  Alimentation: '#3B82F6',
-  Construction: '#EC4899',
-  Cosmétique: '#FCD34D',
-  Divers: '#1F2937',
-  'Pièces Moto': '#E5E7EB',
-  'Pièces Vélo': '#16A34A',
-};
+// Palette de couleurs (cyclique)
+const COULEURS_PALETTE = [
+  '#3B82F6',
+  '#EC4899',
+  '#FCD34D',
+  '#1F2937',
+  '#E5E7EB',
+  '#16A34A',
+  '#EF4444',
+  '#8B5CF6',
+  '#F97316',
+  '#06B6D4',
+  '#84CC16',
+  '#A855F7',
+];
 
 export default function Dashboard() {
   const { taux } = useTaux();
@@ -33,7 +40,6 @@ export default function Dashboard() {
   const [chargement, setChargement] = useState(true);
   const [modalValeurOuvert, setModalValeurOuvert] = useState(false);
 
-  // Charger les données
   useEffect(() => {
     const charger = async () => {
       try {
@@ -54,27 +60,29 @@ export default function Dashboard() {
     charger();
   }, []);
 
-  // Nombre de produits
   const totalArticles = produits.length;
 
-  // Valeur du stock
   const valeurStockUSD = produits.reduce(
     (acc, p) => acc + p.quantite * p.prixUnitaire,
     0
   );
 
-  // Volume par catégorie
-  const volumeParCategorie = Object.keys(COULEURS_CATEGORIES).map((cat) => ({
+  // ========== VOLUME PAR CATÉGORIE (DYNAMIQUE) ==========
+  const categoriesUniques = Array.from(
+    new Set(produits.map((p) => p.categorie).filter(Boolean))
+  );
+
+  const volumeParCategorie = categoriesUniques.map((cat, index) => ({
     name: cat,
     value: produits
       .filter((p) => p.categorie === cat)
       .reduce((acc, p) => acc + p.quantite, 0),
-    color: COULEURS_CATEGORIES[cat],
+    color: COULEURS_PALETTE[index % COULEURS_PALETTE.length],
   }));
 
   const volumeFiltre = volumeParCategorie.filter((v) => v.value > 0);
 
-  // Tranches de marges
+  // ========== TRANCHES DE MARGES ==========
   const tranchesMarges = [
     { tranche: '0-5 %', count: 0 },
     { tranche: '6-10 %', count: 0 },
@@ -90,7 +98,7 @@ export default function Dashboard() {
     else tranchesMarges[3].count++;
   });
 
-  // Statistique des versements par succursale
+  // ========== STATISTIQUE VERSEMENTS ==========
   const statsVersements = succursales
     .map((s) => {
       const totalUSD = versements
@@ -102,7 +110,7 @@ export default function Dashboard() {
 
   const maxVersement = Math.max(...statsVersements.map((s) => s.total), 1);
 
-  // Répartition des dettes
+  // ========== RÉPARTITION DETTES ==========
   const repartitionDettes = succursales.map((s) => ({
     nom: s.nom,
     dette: Math.abs(s.detteActuelle),
@@ -148,49 +156,54 @@ export default function Dashboard() {
 
       {/* GRAPHIQUES CÔTE À CÔTE */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Camembert */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-wider mb-4">
             VOLUME PAR CATÉGORIE DES ARTICLES
           </h2>
 
           {volumeFiltre.length === 0 ? (
-            <p className="text-center text-gray-400 py-12">Aucun article</p>
+            <p className="text-center text-gray-400 py-12">Aucun article en stock</p>
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={volumeFiltre}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={95}
-                  paddingAngle={2}
-                >
-                  {volumeFiltre.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${Number(value).toLocaleString()} articles`} />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
+            <>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={volumeFiltre}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={95}
+                    paddingAngle={2}
+                  >
+                    {volumeFiltre.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => `${Number(value).toLocaleString()} articles`}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
 
-          {volumeFiltre.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-3 mt-4">
-              {volumeFiltre.map((item) => (
-                <div key={item.name} className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-[10px] text-gray-600 dark:text-gray-300">{item.name}</span>
-                </div>
-              ))}
-            </div>
+              <div className="flex flex-wrap justify-center gap-3 mt-4">
+                {volumeFiltre.map((item) => (
+                  <div key={item.name} className="flex items-center gap-1.5">
+                    <div
+                      className="w-3 h-3 rounded"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <span className="text-[10px] text-gray-600 dark:text-gray-300">
+                      {item.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
-        {/* Marges */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 tracking-wider mb-4">
             TRANCHES DE MARGES BÉNÉFICIAIRES
