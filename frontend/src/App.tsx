@@ -5,6 +5,7 @@ import { TauxProvider } from './context/TauxContext';
 import { SuccursalesProvider } from './context/SuccursalesContext';
 
 import Login from './pages/Login';
+import MotDePasseOublie from './pages/MotDePasseOublie';
 import Dashboard from './pages/Dashboard';
 import Stock from './pages/Stock';
 import StructurePrix from './pages/StructurePrix';
@@ -40,6 +41,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
       <Route path="/" element={<RouteProtegee><Dashboard /></RouteProtegee>} />
       <Route path="/stock" element={<RouteProtegee><Stock /></RouteProtegee>} />
       <Route path="/structure-prix" element={<RouteProtegee><StructurePrix /></RouteProtegee>} />

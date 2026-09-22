@@ -36,4 +36,35 @@ export const authService = {
       cibleId,
     });
   },
+
+  definirQuestionSecurite: async (
+    questionSecurite: string,
+    reponseSecurite: string,
+    motDePasse: string
+  ): Promise<void> => {
+    await api.put('/auth/question-securite', {
+      questionSecurite,
+      reponseSecurite,
+      motDePasse,
+    });
+  },
+
+  getQuestionSecurite: async (
+    role: 'Proprietaire' | 'Informaticien'
+  ): Promise<{ nom: string; questionSecurite: string }> => {
+    const response = await api.get(`/auth/question-securite/${role}`);
+    return response.data;
+  },
+
+  reinitialiserMotDePasse: async (
+    role: 'Proprietaire' | 'Informaticien',
+    reponseSecurite: string,
+    nouveauMotDePasse: string
+  ): Promise<void> => {
+    await api.post('/auth/reinitialiser-mot-de-passe', {
+      role,
+      reponseSecurite,
+      nouveauMotDePasse,
+    });
+  },
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -10,7 +10,6 @@ export default function Login() {
   const { connexion } = useAuth();
   const navigate = useNavigate();
 
-  // Détecter l'événement d'installation PWA
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
@@ -18,7 +17,6 @@ export default function Login() {
     };
     window.addEventListener('beforeinstallprompt', handler);
 
-    // Vérifier si déjà installé
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setDejaInstalle(true);
     }
@@ -39,8 +37,8 @@ export default function Login() {
     if (!installPrompt) {
       alert(
         'Pour installer l\'application :\n\n' +
-        '1. Ouvrez le menu de votre navigateur (⋮)\n' +
-        '2. Cliquez sur "Installer l\'application" ou "Ajouter à l\'écran d\'accueil"'
+          '1. Ouvrez le menu de votre navigateur (⋮)\n' +
+          '2. Cliquez sur "Installer l\'application" ou "Ajouter à l\'écran d\'accueil"'
       );
       return;
     }
@@ -54,7 +52,6 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Bouton installer (au-dessus du formulaire) - caché si déjà installé */}
         {!dejaInstalle && (
           <button
             onClick={installerPWA}
@@ -65,7 +62,6 @@ export default function Login() {
         )}
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full overflow-hidden">
-          {/* Header avec logo */}
           <div className="bg-white dark:bg-gray-800 p-6 md:p-8 text-center border-b border-gray-200 dark:border-gray-700">
             <img
               src="/logodieumerci.png"
@@ -80,7 +76,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-4">
             <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white text-center mb-4">
               Connexion
@@ -112,10 +107,18 @@ export default function Login() {
             >
               Se connecter
             </button>
+
+            <div className="text-center">
+              <Link
+                to="/mot-de-passe-oublie"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </div>
           </form>
         </div>
 
-        {/* Version */}
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
           Ets Dieu Merci - Version 1.0.0
         </p>
