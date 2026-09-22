@@ -4,7 +4,6 @@ import Succursale from '../models/Succursale.js';
 import Versement from '../models/Versement.js';
 import Parametre from '../models/Parametre.js';
 
-// Initialisation avec le nouveau SDK
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const getContexte = async () => {
@@ -64,9 +63,8 @@ export const chat = async (req, res) => {
 
     const contexte = await getContexte();
 
-    // Nouvelle syntaxe du SDK @google/genai
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: message,
       config: {
         systemInstruction: `Tu es un assistant IA pour Ets DIEU MERCI, une entreprise de quincaillerie à Kinshasa.
@@ -89,4 +87,4 @@ ${contexte}`,
     console.error('Erreur chat IA :', error);
     res.status(500).json({ message: 'Erreur lors de la réponse IA' });
   }
-}
+};
