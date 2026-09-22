@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Utilisateur from '../models/Utilisateur.js';
+import { creerNotification } from './notificationController.js';
 
 const genererToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -140,14 +141,25 @@ export const changerMotDePasse = async (req, res) => {
     }
 
     // Mettre à jour
-    utilisateurCible.motDePasse = nouveauMotDePasse;
+       utilisateurCible.motDePasse = nouveauMotDePasse;
     await utilisateurCible.save();
+
+    // Notification : Mot de passe changé
+    await creerNotification(
+      'MotDePasse',
+      '🔐 Mot de passe changé',
+      changementAutreUtilisateur
+        ? `Le mot de passe de ${utilisateurCible.nom} a été modifié`
+        : `Votre mot de passe a été modifié`,
+      { utilisateurId: utilisateurCible._id, nom: utilisateurCible.nom }
+    );
 
     res.json({
       message: changementAutreUtilisateur
         ? `✅ Mot de passe de ${utilisateurCible.nom} modifié avec succès`
         : '✅ Votre mot de passe a été modifié avec succès',
     });
+    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

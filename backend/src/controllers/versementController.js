@@ -1,8 +1,8 @@
 import Versement from '../models/Versement.js';
 import Succursale from '../models/Succursale.js';
 import Historique from '../models/Historique.js';
+import { creerNotification } from './notificationController.js';
 
-// Obtenir tous les versements
 export const getVersements = async (req, res) => {
   try {
     const versements = await Versement.find().sort({ date: -1 });
@@ -12,15 +12,12 @@ export const getVersements = async (req, res) => {
   }
 };
 
-// Créer un versement
 export const creerVersement = async (req, res) => {
   try {
     const { succursaleId, date, verseUSD, verseCDF, taux } = req.body;
 
     const succursale = await Succursale.findById(succursaleId);
-    if (!succursale) {
-      return res.status(404).json({ message: 'Succursale introuvable' });
-    }
+    if (!succursale) return res.status(404).json({ message: 'Succursale introuvable' });
 
     const montantUSD = Number(verseUSD) + Number(verseCDF) / Number(taux);
     const nouveauReste = succursale.detteActuelle - montantUSD;
@@ -38,7 +35,6 @@ export const creerVersement = async (req, res) => {
     succursale.detteActuelle = nouveauReste;
     await succursale.save();
 
-    // Enregistrer dans l'historique
     await Historique.create({
       date,
       type: 'Versement',
@@ -47,19 +43,24 @@ export const creerVersement = async (req, res) => {
       utilisateur: 'Proprietaire',
     });
 
+    // Notification
+    await creerNotification(
+      'Versement',
+      '💰 Nouveau versement',
+      `${succursale.nom} a versé ${montantUSD.toFixed(2)} USD`,
+      { succursaleId, nom: succursale.nom, montant: montantUSD }
+    );
+
     res.status(201).json(versement);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// Supprimer un versement
 export const supprimerVersement = async (req, res) => {
   try {
     const versement = await Versement.findByIdAndDelete(req.params.id);
-    if (!versement) {
-      return res.status(404).json({ message: 'Versement introuvable' });
-    }
+    if (!versement) return res.status(404).json({ message: 'Versement introuvable' });
     res.json({ message: 'Versement supprimé', versement });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,7 +1,7 @@
 import Produit from '../models/Produit.js';
 import Historique from '../models/Historique.js';
+import { creerNotification } from './notificationController.js';
 
-// Obtenir tous les produits
 export const getProduits = async (req, res) => {
   try {
     const produits = await Produit.find().sort({ createdAt: -1 });
@@ -11,75 +11,76 @@ export const getProduits = async (req, res) => {
   }
 };
 
-// Obtenir un produit par ID
 export const getProduit = async (req, res) => {
   try {
     const produit = await Produit.findById(req.params.id);
-    if (!produit) {
-      return res.status(404).json({ message: 'Produit introuvable' });
-    }
+    if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
     res.json(produit);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Créer un produit
 export const creerProduit = async (req, res) => {
   try {
     const produit = await Produit.create(req.body);
+
+    // Notification : Nouveau produit
+    await creerNotification(
+      'NouveauProduit',
+      '➕ Nouveau produit',
+      `${produit.nom} a été ajouté au catalogue`,
+      { produitId: produit._id, nom: produit.nom }
+    );
+
     res.status(201).json(produit);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// Modifier un produit
 export const modifierProduit = async (req, res) => {
   try {
-    const produit = await Produit.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!produit) {
-      return res.status(404).json({ message: 'Produit introuvable' });
-    }
+    const produit = await Produit.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
     res.json(produit);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// Supprimer un produit
 export const supprimerProduit = async (req, res) => {
   try {
     const produit = await Produit.findByIdAndDelete(req.params.id);
-    if (!produit) {
-      return res.status(404).json({ message: 'Produit introuvable' });
-    }
+    if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
+
+    // Notification : Suppression
+    await creerNotification(
+      'Suppression',
+      '🗑️ Produit supprimé',
+      `${produit.nom} a été supprimé du catalogue`,
+      { nom: produit.nom }
+    );
+
     res.json({ message: 'Produit supprimé', produit });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Approvisionner
 export const approvisionner = async (req, res) => {
   try {
     const { quantite, unite } = req.body;
     const produit = await Produit.findById(req.params.id);
-
-    if (!produit) {
-      return res.status(404).json({ message: 'Produit introuvable' });
-    }
+    if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
 
     produit.quantite += Number(quantite);
     if (unite) produit.unite = unite;
-
     await produit.save();
 
-    // Enregistrer dans l'historique
     await Historique.create({
       date: new Date(),
       type: 'Approvisionnement',
@@ -89,28 +90,32 @@ export const approvisionner = async (req, res) => {
       utilisateur: 'Informaticien',
     });
 
+    // Notification : Stock bas (si sous le seuil)
+    if (produit.quantite < produit.seuilAlerte) {
+      await creerNotification(
+        'StockBas',
+        '⚠️ Stock bas',
+        `${produit.nom} est en dessous du seuil (${produit.quantite}/${produit.seuilAlerte} ${produit.unite})`,
+        { produitId: produit._id, nom: produit.nom, quantite: produit.quantite }
+      );
+    }
+
     res.json(produit);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Sortie de stock
 export const sortieStock = async (req, res) => {
   try {
     const { quantite, unite } = req.body;
     const produit = await Produit.findById(req.params.id);
-
-    if (!produit) {
-      return res.status(404).json({ message: 'Produit introuvable' });
-    }
+    if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
 
     produit.quantite = Math.max(0, produit.quantite - Number(quantite));
     if (unite) produit.unite = unite;
-
     await produit.save();
 
-    // Enregistrer dans l'historique
     await Historique.create({
       date: new Date(),
       type: 'Sortie',
@@ -119,6 +124,16 @@ export const sortieStock = async (req, res) => {
       unite: unite || produit.unite,
       utilisateur: 'Informaticien',
     });
+
+    // Notification : Stock bas (si sous le seuil)
+    if (produit.quantite < produit.seuilAlerte) {
+      await creerNotification(
+        'StockBas',
+        '⚠️ Stock bas',
+        `${produit.nom} est en dessous du seuil (${produit.quantite}/${produit.seuilAlerte} ${produit.unite})`,
+        { produitId: produit._id, nom: produit.nom, quantite: produit.quantite }
+      );
+    }
 
     res.json(produit);
   } catch (error) {

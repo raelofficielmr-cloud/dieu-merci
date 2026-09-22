@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 const TITRES_PAGES: Record<string, { titre: string; sousTitre: string }> = {
   '/': { titre: 'Tableau de bord', sousTitre: 'Aperçu en temps réel de votre activité.' },
@@ -20,8 +20,6 @@ export default function Header() {
   const proprietaire = estProprietaire();
   const location = useLocation();
 
-  const [notifications] = useState<number>(0);
-
   const page = TITRES_PAGES[location.pathname] || {
     titre: 'Dieu Merci',
     sousTitre: 'Système de gestion',
@@ -30,14 +28,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 md:px-6 py-2 md:py-4 transition-colors">
       <div className="flex items-center justify-between gap-2 md:gap-3">
-        {/* LOGO */}
         <img
           src="/logodieumerci.png"
           alt="Dieu Merci"
-          className="h-10 w-10 md:h-14 md:w-14 object-contain flex-shrink-0"
+          className="h-10 w-10 md:hidden object-contain flex-shrink-0"
         />
 
-        {/* TITRE + SOUS-TITRE */}
         <div className="min-w-0 flex-1">
           <h1 className="text-sm md:text-2xl font-bold text-gray-800 dark:text-white leading-tight truncate">
             {page.titre}
@@ -47,9 +43,7 @@ export default function Header() {
           </p>
         </div>
 
-        {/* BOUTONS MOBILE + DESKTOP */}
         <div className="flex items-center gap-1 md:gap-3 flex-shrink-0">
-          {/* Badge propriétaire (desktop uniquement) */}
           <div className="hidden md:flex items-center gap-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full px-3 py-1.5">
             <div className={`w-2 h-2 rounded-full ${proprietaire ? 'bg-green-500' : 'bg-blue-500'}`}></div>
             <span className={`text-xs font-bold ${proprietaire ? 'text-gray-700 dark:text-gray-200' : 'text-blue-700 dark:text-blue-300'}`}>
@@ -57,7 +51,6 @@ export default function Header() {
             </span>
           </div>
 
-          {/* Mode sombre - VISIBLE MOBILE + DESKTOP */}
           <button
             onClick={basculer}
             className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-lg md:text-xl"
@@ -66,7 +59,6 @@ export default function Header() {
             {sombre ? '☀️' : '🌙'}
           </button>
 
-          {/* Paramètres - VISIBLE MOBILE + DESKTOP */}
           <Link
             to="/parametres"
             className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-lg md:text-xl"
@@ -75,15 +67,7 @@ export default function Header() {
             ⚙️
           </Link>
 
-          {/* Notifications */}
-          <button className="relative p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-            <span className="text-lg md:text-xl">🔔</span>
-            {notifications > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
-                {notifications > 99 ? '99+' : notifications}
-              </span>
-            )}
-          </button>
+          <NotificationBell />
         </div>
       </div>
     </header>

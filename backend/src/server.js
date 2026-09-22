@@ -10,6 +10,7 @@ import versementRoutes from './routes/versements.js';
 import livraisonRoutes from './routes/livraisons.js';
 import parametreRoutes from './routes/parametres.js';
 import historiqueRoutes from './routes/historique.js';
+import notificationRoutes from './routes/notifications.js';
 
 dotenv.config();
 
@@ -19,7 +20,6 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.get('/', (req, res) => {
   res.json({ message: '✅ API Dieu Merci fonctionne !' });
 });
@@ -31,8 +31,8 @@ app.use('/api/versements', versementRoutes);
 app.use('/api/livraisons', livraisonRoutes);
 app.use('/api/parametres', parametreRoutes);
 app.use('/api/historique', historiqueRoutes);
+app.use('/api/notifications', notificationRoutes);
 
-// Démarrage
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
