@@ -59,13 +59,15 @@ export default function Header() {
             {sombre ? '☀️' : '🌙'}
           </button>
 
-          <Link
-            to="/parametres"
-            className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-lg md:text-xl"
-            title="Paramètres"
-          >
-            ⚙️
-          </Link>
+          {proprietaire && (
+  <Link
+    to="/parametres"
+    className="p-1.5 md:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-lg md:text-xl"
+    title="Paramètres"
+  >
+    ⚙️
+  </Link>
+)}
 
                     <NotificationBell />
         </div>

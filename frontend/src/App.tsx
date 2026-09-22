@@ -47,11 +47,34 @@ function AppRoutes() {
       <Route path="/historique" element={<RouteProtegee><Historique /></RouteProtegee>} />
       <Route path="/succursales" element={<RouteProtegee><Succursales /></RouteProtegee>} />
       <Route path="/mode-sombre" element={<RouteProtegee><ModeSombre /></RouteProtegee>} />
-      <Route path="/parametres" element={<RouteProtegee><Parametres /></RouteProtegee>} />
+      <Route path="/parametres" element={<RouteProtegeeProprietaire><Parametres /></RouteProtegeeProprietaire>} />
     </Routes>
   );
 }
+function RouteProtegeeProprietaire({ children }: { children: React.ReactNode }) {
+  const { role, chargement } = useAuth();
 
+  if (chargement) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-gray-500">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role !== 'Proprietaire') {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
 function App() {
   return (
     <ThemeProvider>
