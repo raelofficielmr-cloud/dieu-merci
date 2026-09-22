@@ -4,9 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 
 const ICONES: Record<string, string> = {
   StockBas: '⚠️',
+  Approvisionnement: '➕',
+  Sortie: '📤',
   Livraison: '📦',
   Versement: '💰',
-  NouveauProduit: '➕',
+  NouveauProduit: '🆕',
   Suppression: '🗑️',
   MotDePasse: '🔐',
   NouvelleSuccursale: '🏪',
@@ -14,10 +16,12 @@ const ICONES: Record<string, string> = {
 
 const COULEURS: Record<string, string> = {
   StockBas: 'border-red-500 bg-red-50 dark:bg-red-900/20',
+  Approvisionnement: 'border-green-500 bg-green-50 dark:bg-green-900/20',
+  Sortie: 'border-orange-500 bg-orange-50 dark:bg-orange-900/20',
   Livraison: 'border-blue-500 bg-blue-50 dark:bg-blue-900/20',
-  Versement: 'border-green-500 bg-green-50 dark:bg-green-900/20',
+  Versement: 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20',
   NouveauProduit: 'border-purple-500 bg-purple-50 dark:bg-purple-900/20',
-  Suppression: 'border-orange-500 bg-orange-50 dark:bg-orange-900/20',
+  Suppression: 'border-red-600 bg-red-50 dark:bg-red-900/20',
   MotDePasse: 'border-gray-500 bg-gray-50 dark:bg-gray-900/20',
   NouvelleSuccursale: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
 };

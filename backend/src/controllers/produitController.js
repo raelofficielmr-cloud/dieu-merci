@@ -25,7 +25,6 @@ export const creerProduit = async (req, res) => {
   try {
     const produit = await Produit.create(req.body);
 
-    // Notification : Nouveau produit
     await creerNotification(
       'NouveauProduit',
       '➕ Nouveau produit',
@@ -57,7 +56,6 @@ export const supprimerProduit = async (req, res) => {
     const produit = await Produit.findByIdAndDelete(req.params.id);
     if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
 
-    // Notification : Suppression
     await creerNotification(
       'Suppression',
       '🗑️ Produit supprimé',
@@ -77,6 +75,7 @@ export const approvisionner = async (req, res) => {
     const produit = await Produit.findById(req.params.id);
     if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
 
+    const ancienneQuantite = produit.quantite;
     produit.quantite += Number(quantite);
     if (unite) produit.unite = unite;
     await produit.save();
@@ -90,7 +89,15 @@ export const approvisionner = async (req, res) => {
       utilisateur: 'Informaticien',
     });
 
-    // Notification : Stock bas (si sous le seuil)
+    // Notification : Approvisionnement
+    await creerNotification(
+      'Approvisionnement',
+      '➕ Approvisionnement',
+      `${produit.nom} : +${quantite} ${unite || produit.unite} (${ancienneQuantite} → ${produit.quantite})`,
+      { produitId: produit._id, nom: produit.nom, quantite }
+    );
+
+    // Notification : Stock bas (si sous le seuil après appro)
     if (produit.quantite < produit.seuilAlerte) {
       await creerNotification(
         'StockBas',
@@ -112,6 +119,7 @@ export const sortieStock = async (req, res) => {
     const produit = await Produit.findById(req.params.id);
     if (!produit) return res.status(404).json({ message: 'Produit introuvable' });
 
+    const ancienneQuantite = produit.quantite;
     produit.quantite = Math.max(0, produit.quantite - Number(quantite));
     if (unite) produit.unite = unite;
     await produit.save();
@@ -125,7 +133,15 @@ export const sortieStock = async (req, res) => {
       utilisateur: 'Informaticien',
     });
 
-    // Notification : Stock bas (si sous le seuil)
+    // Notification : Sortie
+    await creerNotification(
+      'Sortie',
+      '📤 Sortie de stock',
+      `${produit.nom} : -${quantite} ${unite || produit.unite} (${ancienneQuantite} → ${produit.quantite})`,
+      { produitId: produit._id, nom: produit.nom, quantite }
+    );
+
+    // Notification : Stock bas (si sous le seuil après sortie)
     if (produit.quantite < produit.seuilAlerte) {
       await creerNotification(
         'StockBas',

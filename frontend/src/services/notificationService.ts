@@ -3,7 +3,16 @@ import api from './api';
 export interface Notification {
   _id: string;
   destinataire: 'Proprietaire' | 'Informaticien';
-  type: 'StockBas' | 'Livraison' | 'Versement' | 'NouveauProduit' | 'Suppression' | 'MotDePasse' | 'NouvelleSuccursale';
+  type:
+    | 'StockBas'
+    | 'Approvisionnement'
+    | 'Sortie'
+    | 'Livraison'
+    | 'Versement'
+    | 'NouveauProduit'
+    | 'Suppression'
+    | 'MotDePasse'
+    | 'NouvelleSuccursale';
   titre: string;
   message: string;
   lu: boolean;
