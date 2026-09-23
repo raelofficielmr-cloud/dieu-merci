@@ -49,7 +49,12 @@ export const authService = {
     });
   },
 
-  getQuestionSecurite: async (
+  getMaQuestionSecurite: async (): Promise<{ nom: string; questionSecurite: string }> => {
+    const response = await api.get('/auth/ma-question-securite');
+    return response.data;
+  },
+
+  getQuestionSecuriteParRole: async (
     role: 'Proprietaire' | 'Informaticien'
   ): Promise<{ nom: string; questionSecurite: string }> => {
     const response = await api.get(`/auth/question-securite/${role}`);

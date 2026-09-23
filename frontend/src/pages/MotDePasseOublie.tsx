@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 
 export default function MotDePasseOublie() {
-  const [etape, setEtape] = useState<1 | 2 | 3>(1);
-  const [role, setRole] = useState<'Proprietaire' | 'Informaticien'>('Proprietaire');
+  const [etape, setEtape] = useState<1 | 2>(1);
   const [question, setQuestion] = useState('');
   const [nom, setNom] = useState('');
   const [reponse, setReponse] = useState('');
@@ -15,12 +14,12 @@ export default function MotDePasseOublie() {
   const [chargement, setChargement] = useState(false);
   const navigate = useNavigate();
 
-  // Étape 1 : choisir le compte
-  const choisirCompte = async () => {
+  // ÉTAPE 1 → 2 : Charger la question du Propriétaire
+  const chargerQuestion = async () => {
     setErreur('');
     setChargement(true);
     try {
-      const data = await authService.getQuestionSecurite(role);
+      const data = await authService.getQuestionSecuriteParRole('Proprietaire');
       setQuestion(data.questionSecurite);
       setNom(data.nom);
       setEtape(2);
@@ -32,33 +31,25 @@ export default function MotDePasseOublie() {
     }
   };
 
-  // Étape 2 : vérifier la réponse (on envoie avec un MDP bidon pour valider, puis étape 3)
-  const verifierReponse = async () => {
-    setErreur('');
-    if (!reponse.trim()) return setErreur('Entrez votre réponse');
-    setEtape(3);
-  };
-
-  // Étape 3 : réinitialiser
+  // ÉTAPE 2 : Réinitialiser
   const reinitialiser = async () => {
     setErreur('');
     setMessage('');
 
-    if (nouveauMdp.length < 4) return setErreur('Le mot de passe doit faire au moins 4 caractères');
-    if (nouveauMdp !== confirmationMdp) return setErreur('Les deux mots de passe ne correspondent pas');
+    if (!reponse.trim()) return setErreur('Entrez votre réponse');
+    if (nouveauMdp.length < 4)
+      return setErreur('Le mot de passe doit faire au moins 4 caractères');
+    if (nouveauMdp !== confirmationMdp)
+      return setErreur('Les deux mots de passe ne correspondent pas');
 
     setChargement(true);
     try {
-      await authService.reinitialiserMotDePasse(role, reponse, nouveauMdp);
+      await authService.reinitialiserMotDePasse('Proprietaire', reponse, nouveauMdp);
       setMessage('✅ Mot de passe réinitialisé ! Redirection...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (error: any) {
       const msg = error.response?.data?.message || 'Erreur';
       setErreur(msg);
-      // Si réponse incorrecte, retour à l'étape 2
-      if (error.response?.status === 401) {
-        setEtape(2);
-      }
     } finally {
       setChargement(false);
     }
@@ -79,7 +70,7 @@ export default function MotDePasseOublie() {
               Mot de passe oublié
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Récupérez votre accès
+              Récupération du compte Propriétaire
             </p>
           </div>
 
@@ -96,24 +87,17 @@ export default function MotDePasseOublie() {
               </div>
             )}
 
-            {/* ÉTAPE 1 */}
+            {/* ÉTAPE 1 : Continuer */}
             {etape === 1 && (
               <>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Sélectionnez votre compte :
-                </p>
-                <select
-                  value={role}
-                  onChange={(e) =>
-                    setRole(e.target.value as 'Proprietaire' | 'Informaticien')
-                  }
-                  className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                >
-                  <option value="Proprietaire">👑 Propriétaire (Papa)</option>
-                  <option value="Informaticien">💻 Informaticien</option>
-                </select>
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-sm text-blue-700 dark:text-blue-300">
+                  <p className="font-medium mb-1">👑 Compte : Propriétaire (Papa)</p>
+                  <p className="text-xs">
+                    Vous allez répondre à votre question de sécurité.
+                  </p>
+                </div>
                 <button
-                  onClick={choisirCompte}
+                  onClick={chargerQuestion}
                   disabled={chargement}
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
                 >
@@ -122,7 +106,7 @@ export default function MotDePasseOublie() {
               </>
             )}
 
-            {/* ÉTAPE 2 */}
+            {/* ÉTAPE 2 : Répondre + nouveau MDP */}
             {etape === 2 && (
               <>
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
@@ -130,46 +114,47 @@ export default function MotDePasseOublie() {
                     Compte : <strong>{nom}</strong>
                   </p>
                 </div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {question}
-                </p>
-                <input
-                  type="text"
-                  value={reponse}
-                  onChange={(e) => setReponse(e.target.value)}
-                  placeholder="Votre réponse..."
-                  className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                  autoFocus
-                />
-                <button
-                  onClick={verifierReponse}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg"
-                >
-                  Valider
-                </button>
-              </>
-            )}
 
-            {/* ÉTAPE 3 */}
-            {etape === 3 && (
-              <>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Définissez un nouveau mot de passe :
-                </p>
-                <input
-                  type="password"
-                  value={nouveauMdp}
-                  onChange={(e) => setNouveauMdp(e.target.value)}
-                  placeholder="Nouveau mot de passe"
-                  className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                />
-                <input
-                  type="password"
-                  value={confirmationMdp}
-                  onChange={(e) => setConfirmationMdp(e.target.value)}
-                  placeholder="Confirmer le mot de passe"
-                  className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
-                />
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {question}
+                  </label>
+                  <input
+                    type="text"
+                    value={reponse}
+                    onChange={(e) => setReponse(e.target.value)}
+                    placeholder="Votre réponse..."
+                    className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    value={nouveauMdp}
+                    onChange={(e) => setNouveauMdp(e.target.value)}
+                    placeholder="••••"
+                    className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Confirmer
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmationMdp}
+                    onChange={(e) => setConfirmationMdp(e.target.value)}
+                    placeholder="••••"
+                    className="w-full px-3 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  />
+                </div>
+
                 <button
                   onClick={reinitialiser}
                   disabled={chargement}
@@ -177,11 +162,24 @@ export default function MotDePasseOublie() {
                 >
                   {chargement ? '⏳...' : '🔓 Réinitialiser'}
                 </button>
+
+                <button
+                  onClick={() => {
+                    setEtape(1);
+                    setReponse('');
+                    setNouveauMdp('');
+                    setConfirmationMdp('');
+                    setErreur('');
+                  }}
+                  className="w-full text-gray-500 dark:text-gray-400 py-2 text-sm"
+                >
+                  ← Retour
+                </button>
               </>
             )}
 
-            {/* Lien retour */}
-            <div className="text-center pt-2">
+            {/* Lien retour login */}
+            <div className="text-center pt-2 border-t border-gray-200 dark:border-gray-700 mt-4">
               <Link
                 to="/login"
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline"

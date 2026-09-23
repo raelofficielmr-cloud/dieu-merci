@@ -17,6 +17,7 @@ const menuItems: MenuItem[] = [
   { name: 'Suivi Crédit', path: '/suivi-credit', icone: '🛒', roles: ['Informaticien'] },
   { name: 'Historiques', path: '/historique', icone: '📜', roles: ['Proprietaire', 'Informaticien'] },
   { name: 'Succursales', path: '/succursales', icone: '🏪', roles: ['Proprietaire'] },
+  { name: 'Paramètres', path: '/parametres', icone: '⚙️', roles: ['Proprietaire'] },
 ];
 
 const menuMobile: MenuItem[] = [
@@ -45,7 +46,7 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* SIDEBAR ORDINATEUR - FIXED */}
+      {/* SIDEBAR ORDINATEUR */}
       <aside className="hidden md:flex md:fixed md:top-0 md:left-0 md:h-screen md:z-30 bg-white dark:bg-gray-800 w-64 border-r border-gray-200 dark:border-gray-700 flex-col transition-colors">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <img
@@ -88,19 +89,19 @@ export default function Sidebar() {
 
       {/* BARRE DU BAS MOBILE */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 transition-colors">
-        <div className="flex justify-around items-center py-1">
+        <div className="flex justify-around items-center py-1 overflow-x-auto">
           {menusMobileAutorises.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-1 min-w-0 ${
+                className={`flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-shrink-0 min-w-[60px] ${
                   isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
                 <span className="text-xl">{item.icone}</span>
-                <span className="text-[9px] font-medium text-center leading-tight truncate">
+                <span className="text-[9px] font-medium text-center leading-tight">
                   {item.name}
                 </span>
               </Link>
@@ -109,10 +110,10 @@ export default function Sidebar() {
 
           <button
             onClick={handleDeconnexion}
-            className="flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-1 min-w-0 text-red-600 dark:text-red-400"
+            className="flex flex-col items-center justify-center gap-0.5 px-1 py-1.5 rounded-lg flex-shrink-0 min-w-[60px] text-red-600 dark:text-red-400"
           >
             <span className="text-xl">🚪</span>
-            <span className="text-[9px] font-medium text-center leading-tight truncate">
+            <span className="text-[9px] font-medium text-center leading-tight">
               Sortir
             </span>
           </button>

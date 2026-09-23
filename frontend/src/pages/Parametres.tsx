@@ -31,21 +31,23 @@ export default function Parametres() {
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurListe[]>([]);
   const [cibleId, setCibleId] = useState<string>('');
 
-  // Changement mot de passe
-  const [ancienMdp, setAncienMdp] = useState('');
-  const [nouveauMdp, setNouveauMdp] = useState('');
-  const [confirmationMdp, setConfirmationMdp] = useState('');
-  const [messageMdp, setMessageMdp] = useState('');
-  const [erreurMdp, setErreurMdp] = useState('');
-  const [chargementMdp, setChargementMdp] = useState(false);
-
-  // Question de sécurité
+  // Question de sécurité (Papa)
+  const [questionActuelle, setQuestionActuelle] = useState('');
+  const [aUneQuestion, setAUneQuestion] = useState(false);
   const [questionSecurite, setQuestionSecurite] = useState(QUESTIONS[0]);
   const [reponseSecurite, setReponseSecurite] = useState('');
   const [mdpPourQuestion, setMdpPourQuestion] = useState('');
   const [messageQuestion, setMessageQuestion] = useState('');
   const [erreurQuestion, setErreurQuestion] = useState('');
   const [chargementQuestion, setChargementQuestion] = useState(false);
+
+  // Changement de mot de passe (Papa ou Info)
+  const [ancienMdp, setAncienMdp] = useState('');
+  const [nouveauMdp, setNouveauMdp] = useState('');
+  const [confirmationMdp, setConfirmationMdp] = useState('');
+  const [messageMdp, setMessageMdp] = useState('');
+  const [erreurMdp, setErreurMdp] = useState('');
+  const [chargementMdp, setChargementMdp] = useState(false);
 
   useEffect(() => {
     const charger = async () => {
@@ -61,6 +63,12 @@ export default function Parametres() {
         if (proprietaire) {
           const users = await authService.getUtilisateurs();
           setUtilisateurs(users);
+
+          const maQuestion = await authService.getMaQuestionSecurite();
+          if (maQuestion.questionSecurite) {
+            setQuestionActuelle(maQuestion.questionSecurite);
+            setAUneQuestion(true);
+          }
         }
       } catch (error) {
         console.error(error);
@@ -83,6 +91,34 @@ export default function Parametres() {
     } catch (error) {
       console.error(error);
       alert('Erreur lors de la sauvegarde');
+    }
+  };
+
+  const enregistrerQuestion = async () => {
+    setErreurQuestion('');
+    setMessageQuestion('');
+
+    if (!reponseSecurite.trim()) return setErreurQuestion('Entrez votre réponse');
+    if (!mdpPourQuestion) return setErreurQuestion('Entrez votre mot de passe pour confirmer');
+
+    setChargementQuestion(true);
+    try {
+      await authService.definirQuestionSecurite(
+        questionSecurite,
+        reponseSecurite,
+        mdpPourQuestion
+      );
+      setMessageQuestion('✅ Question de sécurité enregistrée !');
+      setQuestionActuelle(questionSecurite);
+      setAUneQuestion(true);
+      setReponseSecurite('');
+      setMdpPourQuestion('');
+      setTimeout(() => setMessageQuestion(''), 3000);
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'Erreur';
+      setErreurQuestion(msg);
+    } finally {
+      setChargementQuestion(false);
     }
   };
 
@@ -119,32 +155,6 @@ export default function Parametres() {
       setErreurMdp(msg);
     } finally {
       setChargementMdp(false);
-    }
-  };
-
-  const enregistrerQuestion = async () => {
-    setErreurQuestion('');
-    setMessageQuestion('');
-
-    if (!reponseSecurite.trim()) return setErreurQuestion('Entrez votre réponse');
-    if (!mdpPourQuestion) return setErreurQuestion('Entrez votre mot de passe pour confirmer');
-
-    setChargementQuestion(true);
-    try {
-      await authService.definirQuestionSecurite(
-        questionSecurite,
-        reponseSecurite,
-        mdpPourQuestion
-      );
-      setMessageQuestion('✅ Question de sécurité enregistrée !');
-      setReponseSecurite('');
-      setMdpPourQuestion('');
-      setTimeout(() => setMessageQuestion(''), 3000);
-    } catch (error: any) {
-      const msg = error.response?.data?.message || 'Erreur';
-      setErreurQuestion(msg);
-    } finally {
-      setChargementQuestion(false);
     }
   };
 
@@ -238,183 +248,199 @@ export default function Parametres() {
           </button>
         </div>
 
-        {/* Question de sécurité (pour Papa ET Info) */}
-        <div className="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-600 p-4 md:p-6 rounded-lg mb-6">
-          <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
-            🔒 Question de sécurité
-          </h3>
-          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Définissez une question pour récupérer votre mot de passe en cas d'oubli.
-          </p>
-
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Question
-              </label>
-              <select
-                value={questionSecurite}
-                onChange={(e) => setQuestionSecurite(e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-              >
-                {QUESTIONS.map((q) => (
-                  <option key={q} value={q}>
-                    {q}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Votre réponse
-              </label>
-              <input
-                type="text"
-                value={reponseSecurite}
-                onChange={(e) => setReponseSecurite(e.target.value)}
-                placeholder="Réponse (sera enregistrée en minuscules)"
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Confirmez avec votre mot de passe
-              </label>
-              <input
-                type="password"
-                value={mdpPourQuestion}
-                onChange={(e) => setMdpPourQuestion(e.target.value)}
-                placeholder="••••"
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-              />
-            </div>
-          </div>
-
-          {erreurQuestion && (
-            <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-600 text-red-700 dark:text-red-300 p-3 rounded text-sm mt-3">
-              ⚠️ {erreurQuestion}
-            </div>
-          )}
-          {messageQuestion && (
-            <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-600 text-green-700 dark:text-green-300 p-3 rounded text-sm mt-3">
-              {messageQuestion}
-            </div>
-          )}
-
-          <button
-            onClick={enregistrerQuestion}
-            disabled={chargementQuestion}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg mt-4"
-          >
-            {chargementQuestion ? '⏳...' : '🔒 Enregistrer la question'}
-          </button>
-        </div>
-
-        {/* Changement mot de passe (Propriétaire seulement) */}
+        {/* ===== MA SÉCURITÉ (Papa uniquement) ===== */}
         {proprietaire && (
-          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 md:p-6 rounded-lg">
-            <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
-              🔐 Changer un mot de passe
-            </h3>
-            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Changez votre mot de passe ou celui de l'informaticien.
-            </p>
+          <>
+            {/* Question de sécurité */}
+            <div className="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-600 p-4 md:p-6 rounded-lg mb-6">
+              <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
+                🔒 Ma question de sécurité
+              </h3>
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Définissez une question pour récupérer votre mot de passe en cas d'oubli.
+              </p>
 
-            <div className="mb-4">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Compte à modifier
-              </label>
-              <select
-                value={cibleId}
-                onChange={(e) => {
-                  setCibleId(e.target.value);
-                  setAncienMdp('');
-                  setNouveauMdp('');
-                  setConfirmationMdp('');
-                  setErreurMdp('');
-                  setMessageMdp('');
-                }}
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+              {aUneQuestion && (
+                <div className="bg-white dark:bg-gray-700 rounded-lg p-3 mb-4 text-xs">
+                  <p className="text-gray-500 dark:text-gray-400">Question actuelle :</p>
+                  <p className="font-medium text-gray-800 dark:text-white">
+                    {questionActuelle}
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {aUneQuestion ? 'Nouvelle question' : 'Question'}
+                  </label>
+                  <select
+                    value={questionSecurite}
+                    onChange={(e) => setQuestionSecurite(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  >
+                    {QUESTIONS.map((q) => (
+                      <option key={q} value={q}>
+                        {q}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Votre réponse
+                  </label>
+                  <input
+                    type="text"
+                    value={reponseSecurite}
+                    onChange={(e) => setReponseSecurite(e.target.value)}
+                    placeholder="Réponse (minuscules automatiques)"
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Confirmez avec votre mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    value={mdpPourQuestion}
+                    onChange={(e) => setMdpPourQuestion(e.target.value)}
+                    placeholder="••••"
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  />
+                </div>
+              </div>
+
+              {erreurQuestion && (
+                <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-600 text-red-700 dark:text-red-300 p-3 rounded text-sm mt-3">
+                  ⚠️ {erreurQuestion}
+                </div>
+              )}
+              {messageQuestion && (
+                <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-600 text-green-700 dark:text-green-300 p-3 rounded text-sm mt-3">
+                  {messageQuestion}
+                </div>
+              )}
+
+              <button
+                onClick={enregistrerQuestion}
+                disabled={chargementQuestion}
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg mt-4"
               >
-                <option value="">👑 Mon mot de passe (Propriétaire)</option>
-                {utilisateurs
-                  .filter((u) => u.role === 'Informaticien')
-                  .map((u) => (
-                    <option key={u._id} value={u._id}>
-                      💻 {u.nom} (Informaticien)
-                    </option>
-                  ))}
-              </select>
+                {chargementQuestion
+                  ? '⏳...'
+                  : aUneQuestion
+                  ? '💾 Mettre à jour la question'
+                  : '🔒 Enregistrer la question'}
+              </button>
             </div>
 
-            {changeAutre && (
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-3 rounded text-xs text-yellow-800 dark:text-yellow-300 mb-4">
-                ⚠️ Vous modifiez le mot de passe de <strong>{utilisateurCible?.nom}</strong>.
-              </div>
-            )}
+            {/* Changer mot de passe (Papa + Info) */}
+            <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 md:p-6 rounded-lg">
+              <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
+                🔐 Changer un mot de passe
+              </h3>
+              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Changez votre mot de passe ou celui de l'informaticien.
+              </p>
 
-            {!changeAutre && (
+              <div className="mb-4">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Compte à modifier
+                </label>
+                <select
+                  value={cibleId}
+                  onChange={(e) => {
+                    setCibleId(e.target.value);
+                    setAncienMdp('');
+                    setNouveauMdp('');
+                    setConfirmationMdp('');
+                    setErreurMdp('');
+                    setMessageMdp('');
+                  }}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                >
+                  <option value="">👑 Mon mot de passe (Propriétaire)</option>
+                  {utilisateurs
+                    .filter((u) => u.role === 'Informaticien')
+                    .map((u) => (
+                      <option key={u._id} value={u._id}>
+                        💻 {u.nom} (Informaticien)
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {changeAutre && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-3 rounded text-xs text-yellow-800 dark:text-yellow-300 mb-4">
+                  ⚠️ Vous modifiez le mot de passe de <strong>{utilisateurCible?.nom}</strong>.
+                </div>
+              )}
+
+              {!changeAutre && (
+                <div className="mb-3">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Ancien mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    value={ancienMdp}
+                    onChange={(e) => setAncienMdp(e.target.value)}
+                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                    placeholder="••••"
+                  />
+                </div>
+              )}
+
               <div className="mb-3">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Ancien mot de passe
+                  Nouveau mot de passe
                 </label>
                 <input
                   type="password"
-                  value={ancienMdp}
-                  onChange={(e) => setAncienMdp(e.target.value)}
+                  value={nouveauMdp}
+                  onChange={(e) => setNouveauMdp(e.target.value)}
                   className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
                   placeholder="••••"
                 />
               </div>
-            )}
 
-            <div className="mb-3">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Nouveau mot de passe
-              </label>
-              <input
-                type="password"
-                value={nouveauMdp}
-                onChange={(e) => setNouveauMdp(e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-                placeholder="••••"
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Confirmer
-              </label>
-              <input
-                type="password"
-                value={confirmationMdp}
-                onChange={(e) => setConfirmationMdp(e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-                placeholder="••••"
-              />
-            </div>
-
-            {erreurMdp && (
-              <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-600 text-red-700 dark:text-red-300 p-3 rounded text-sm mb-3">
-                ⚠️ {erreurMdp}
+              <div className="mb-3">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Confirmer
+                </label>
+                <input
+                  type="password"
+                  value={confirmationMdp}
+                  onChange={(e) => setConfirmationMdp(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
+                  placeholder="••••"
+                />
               </div>
-            )}
-            {messageMdp && (
-              <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-600 text-green-700 dark:text-green-300 p-3 rounded text-sm mb-3">
-                {messageMdp}
-              </div>
-            )}
 
-            <button
-              onClick={changerLeMotDePasse}
-              disabled={chargementMdp}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
-            >
-              {chargementMdp ? '⏳...' : '🔐 Changer le mot de passe'}
-            </button>
-          </div>
+              {erreurMdp && (
+                <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-600 text-red-700 dark:text-red-300 p-3 rounded text-sm mb-3">
+                  ⚠️ {erreurMdp}
+                </div>
+              )}
+              {messageMdp && (
+                <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-600 text-green-700 dark:text-green-300 p-3 rounded text-sm mb-3">
+                  {messageMdp}
+                </div>
+              )}
+
+              <button
+                onClick={changerLeMotDePasse}
+                disabled={chargementMdp}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
+              >
+                {chargementMdp ? '⏳...' : '🔐 Changer le mot de passe'}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </Layout>

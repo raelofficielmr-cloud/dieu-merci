@@ -108,7 +108,7 @@ export default function Login() {
               Se connecter
             </button>
 
-            <div className="text-center">
+            <div className="text-center pt-2">
               <Link
                 to="/mot-de-passe-oublie"
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline"

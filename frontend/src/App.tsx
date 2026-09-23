@@ -18,7 +18,6 @@ import Parametres from './pages/Parametres';
 function RouteProtegee({ children }: { children: React.ReactNode }) {
   const { role, chargement } = useAuth();
 
-  // Attendre la fin du chargement avant de décider
   if (chargement) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -37,22 +36,6 @@ function RouteProtegee({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function AppRoutes() {
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
-      <Route path="/" element={<RouteProtegee><Dashboard /></RouteProtegee>} />
-      <Route path="/stock" element={<RouteProtegee><Stock /></RouteProtegee>} />
-      <Route path="/structure-prix" element={<RouteProtegee><StructurePrix /></RouteProtegee>} />
-      <Route path="/suivi-credit" element={<RouteProtegee><SuiviCredit /></RouteProtegee>} />
-      <Route path="/historique" element={<RouteProtegee><Historique /></RouteProtegee>} />
-      <Route path="/succursales" element={<RouteProtegee><Succursales /></RouteProtegee>} />
-      <Route path="/mode-sombre" element={<RouteProtegee><ModeSombre /></RouteProtegee>} />
-      <Route path="/parametres" element={<RouteProtegeeProprietaire><Parametres /></RouteProtegeeProprietaire>} />
-    </Routes>
-  );
-}
 function RouteProtegeeProprietaire({ children }: { children: React.ReactNode }) {
   const { role, chargement } = useAuth();
 
@@ -77,6 +60,27 @@ function RouteProtegeeProprietaire({ children }: { children: React.ReactNode }) 
 
   return <>{children}</>;
 }
+
+function AppRoutes() {
+  return (
+    <Routes>
+      {/* Routes publiques */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
+
+      {/* Routes protégées */}
+      <Route path="/" element={<RouteProtegee><Dashboard /></RouteProtegee>} />
+      <Route path="/stock" element={<RouteProtegee><Stock /></RouteProtegee>} />
+      <Route path="/structure-prix" element={<RouteProtegee><StructurePrix /></RouteProtegee>} />
+      <Route path="/suivi-credit" element={<RouteProtegee><SuiviCredit /></RouteProtegee>} />
+      <Route path="/historique" element={<RouteProtegee><Historique /></RouteProtegee>} />
+      <Route path="/succursales" element={<RouteProtegee><Succursales /></RouteProtegee>} />
+      <Route path="/mode-sombre" element={<RouteProtegee><ModeSombre /></RouteProtegee>} />
+      <Route path="/parametres" element={<RouteProtegeeProprietaire><Parametres /></RouteProtegeeProprietaire>} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider>

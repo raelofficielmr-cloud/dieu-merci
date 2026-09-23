@@ -70,7 +70,9 @@ export const creerUtilisateur = async (req, res) => {
 // ========== GET ME ==========
 export const getMe = async (req, res) => {
   try {
-    const utilisateur = await Utilisateur.findById(req.utilisateur.id).select('-motDePasse -reponseSecurite');
+    const utilisateur = await Utilisateur.findById(req.utilisateur.id).select(
+      '-motDePasse -reponseSecurite'
+    );
     if (!utilisateur) {
       return res.status(404).json({ message: 'Utilisateur introuvable' });
     }
@@ -80,7 +82,7 @@ export const getMe = async (req, res) => {
   }
 };
 
-// ========== LISTE UTILISATEURS ==========
+// ========== LISTE UTILISATEURS (Papa) ==========
 export const getUtilisateurs = async (req, res) => {
   try {
     if (req.utilisateur.role !== 'Proprietaire') {
@@ -175,7 +177,6 @@ export const definirQuestionSecurite = async (req, res) => {
       return res.status(404).json({ message: 'Utilisateur introuvable' });
     }
 
-    // Vérifier le mot de passe actuel
     const correspond = await utilisateur.comparerMotDePasse(motDePasse);
     if (!correspond) {
       return res.status(401).json({ message: 'Mot de passe incorrect' });
@@ -191,8 +192,26 @@ export const definirQuestionSecurite = async (req, res) => {
   }
 };
 
-// ========== OBTENIR LA QUESTION DE SÉCURITÉ (pour un rôle) ==========
-export const getQuestionSecurite = async (req, res) => {
+// ========== OBTENIR MA QUESTION DE SÉCURITÉ ==========
+export const getMaQuestionSecurite = async (req, res) => {
+  try {
+    const utilisateur = await Utilisateur.findById(req.utilisateur.id).select(
+      'questionSecurite nom'
+    );
+    if (!utilisateur) {
+      return res.status(404).json({ message: 'Utilisateur introuvable' });
+    }
+    res.json({
+      nom: utilisateur.nom,
+      questionSecurite: utilisateur.questionSecurite,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ========== OBTENIR LA QUESTION DE SÉCURITÉ PAR RÔLE (PUBLIC) ==========
+export const getQuestionSecuriteParRole = async (req, res) => {
   try {
     const { role } = req.params;
 
@@ -200,7 +219,9 @@ export const getQuestionSecurite = async (req, res) => {
       return res.status(400).json({ message: 'Rôle invalide' });
     }
 
-    const utilisateur = await Utilisateur.findOne({ role, actif: true }).select('questionSecurite nom');
+    const utilisateur = await Utilisateur.findOne({ role, actif: true }).select(
+      'questionSecurite nom'
+    );
 
     if (!utilisateur) {
       return res.status(404).json({ message: 'Utilisateur introuvable' });
@@ -221,7 +242,7 @@ export const getQuestionSecurite = async (req, res) => {
   }
 };
 
-// ========== RÉINITIALISER MOT DE PASSE (avec question) ==========
+// ========== RÉINITIALISER MOT DE PASSE (PUBLIC, via question) ==========
 export const reinitialiserMotDePasse = async (req, res) => {
   try {
     const { role, reponseSecurite, nouveauMotDePasse } = req.body;
