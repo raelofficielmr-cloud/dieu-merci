@@ -51,7 +51,19 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // ⚠️ AJOUT : gestion des navigations de pages
+        navigateFallback: 'index.html',
         runtimeCaching: [
+          // ⚠️ NOUVELLE RÈGLE : pages (navigations)
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              networkTimeoutSeconds: 3,
+            },
+          },
+          // RÈGLE EXISTANTE : API backend
           {
             urlPattern: /^https:\/\/dieu-merci-backend\.onrender\.com\/api\/.*/i,
             handler: 'NetworkFirst',
