@@ -16,8 +16,11 @@ export function TauxProvider({ children }: { children: ReactNode }) {
   const [taux, setTauxState] = useState<number>(TAUX_DEFAUT);
   const location = useLocation();
 
-  // Charger le taux depuis MongoDB
   const chargerTaux = async () => {
+    // ⚠️ Ne charger QUE si l'utilisateur a un token
+    const token = localStorage.getItem('dieumerci_token');
+    if (!token) return;
+
     try {
       const params = await parametreService.get();
       setTauxState(params.tauxDuJour);
@@ -26,23 +29,22 @@ export function TauxProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Charger au démarrage
+  // Charger au démarrage (si connecté)
   useEffect(() => {
     chargerTaux();
   }, []);
 
-  // 🔄 Recharger à chaque changement de page
+  // Recharger à chaque changement de page
   useEffect(() => {
     chargerTaux();
   }, [location.pathname]);
 
-  // ⏰ Recharger toutes les 60 secondes (au cas où)
+  // Recharger toutes les 60 secondes
   useEffect(() => {
     const interval = setInterval(chargerTaux, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Modifier le taux dans MongoDB
   const setTaux = async (valeur: number) => {
     setTauxState(valeur);
     try {

@@ -4,6 +4,7 @@ import { useTaux } from '../context/TauxContext';
 import { useAuth } from '../context/AuthContext';
 import { parametreService, type Parametre } from '../services/parametreService';
 import { authService, type UtilisateurListe } from '../services/authService';
+import PasswordInput from '../components/ui/PasswordInput';
 
 const QUESTIONS = [
   'Quel est le nom de ma première école ?',
@@ -31,7 +32,7 @@ export default function Parametres() {
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurListe[]>([]);
   const [cibleId, setCibleId] = useState<string>('');
 
-  // Question de sécurité (Papa)
+  // Question de sécurité
   const [questionActuelle, setQuestionActuelle] = useState('');
   const [aUneQuestion, setAUneQuestion] = useState(false);
   const [questionSecurite, setQuestionSecurite] = useState(QUESTIONS[0]);
@@ -41,7 +42,7 @@ export default function Parametres() {
   const [erreurQuestion, setErreurQuestion] = useState('');
   const [chargementQuestion, setChargementQuestion] = useState(false);
 
-  // Changement de mot de passe (Papa ou Info)
+  // Changement mot de passe
   const [ancienMdp, setAncienMdp] = useState('');
   const [nouveauMdp, setNouveauMdp] = useState('');
   const [confirmationMdp, setConfirmationMdp] = useState('');
@@ -168,7 +169,7 @@ export default function Parametres() {
           ⚙️ Paramètres
         </h2>
 
-        {/* Taux du jour */}
+        {/* Taux */}
         <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-600 p-4 md:p-6 rounded-lg mb-6">
           <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
             💱 Taux du jour (CDF)
@@ -200,7 +201,7 @@ export default function Parametres() {
           </button>
         </div>
 
-        {/* Informations entreprise */}
+        {/* Infos entreprise */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 p-4 md:p-6 rounded-lg mb-6">
           <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
             🏢 Informations de l'entreprise
@@ -248,7 +249,7 @@ export default function Parametres() {
           </button>
         </div>
 
-        {/* ===== MA SÉCURITÉ (Papa uniquement) ===== */}
+        {/* ===== MA SÉCURITÉ ===== */}
         {proprietaire && (
           <>
             {/* Question de sécurité */}
@@ -304,13 +305,13 @@ export default function Parametres() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Confirmez avec votre mot de passe
                   </label>
-                  <input
-                    type="password"
-                    value={mdpPourQuestion}
-                    onChange={(e) => setMdpPourQuestion(e.target.value)}
-                    placeholder="••••"
-                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-                  />
+                  <div className="mt-1">
+                    <PasswordInput
+                      value={mdpPourQuestion}
+                      onChange={setMdpPourQuestion}
+                      placeholder="Mot de passe"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -338,7 +339,7 @@ export default function Parametres() {
               </button>
             </div>
 
-            {/* Changer mot de passe (Papa + Info) */}
+            {/* Changer mot de passe */}
             <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 md:p-6 rounded-lg">
               <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
                 🔐 Changer un mot de passe
@@ -385,13 +386,13 @@ export default function Parametres() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Ancien mot de passe
                   </label>
-                  <input
-                    type="password"
-                    value={ancienMdp}
-                    onChange={(e) => setAncienMdp(e.target.value)}
-                    className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-                    placeholder="••••"
-                  />
+                  <div className="mt-1">
+                    <PasswordInput
+                      value={ancienMdp}
+                      onChange={setAncienMdp}
+                      placeholder="Ancien mot de passe"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -399,26 +400,26 @@ export default function Parametres() {
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Nouveau mot de passe
                 </label>
-                <input
-                  type="password"
-                  value={nouveauMdp}
-                  onChange={(e) => setNouveauMdp(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-                  placeholder="••••"
-                />
+                <div className="mt-1">
+                  <PasswordInput
+                    value={nouveauMdp}
+                    onChange={setNouveauMdp}
+                    placeholder="Nouveau mot de passe"
+                  />
+                </div>
               </div>
 
               <div className="mb-3">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Confirmer
                 </label>
-                <input
-                  type="password"
-                  value={confirmationMdp}
-                  onChange={(e) => setConfirmationMdp(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1"
-                  placeholder="••••"
-                />
+                <div className="mt-1">
+                  <PasswordInput
+                    value={confirmationMdp}
+                    onChange={setConfirmationMdp}
+                    placeholder="Confirmer"
+                  />
+                </div>
               </div>
 
               {erreurMdp && (

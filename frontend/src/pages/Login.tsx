@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PasswordInput from '../components/ui/PasswordInput';
 
 export default function Login() {
   const [motDePasse, setMotDePasse] = useState('');
@@ -91,14 +92,13 @@ export default function Login() {
               <label className="text-sm text-gray-600 dark:text-gray-300 font-medium">
                 Mot de passe
               </label>
-              <input
-                type="password"
-                value={motDePasse}
-                onChange={(e) => setMotDePasse(e.target.value)}
-                className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
-                placeholder="••••"
-                autoFocus
-              />
+              <div className="mt-1">
+                <PasswordInput
+                  value={motDePasse}
+                  onChange={setMotDePasse}
+                  autoFocus
+                />
+              </div>
             </div>
 
             <button

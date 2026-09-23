@@ -23,11 +23,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('dieumerci_token');
-      localStorage.removeItem('dieumerci_user');
-
-      // ⚠️ Ne rediriger QUE si on n'est PAS déjà sur /login
-      if (window.location.pathname !== '/login') {
+      // ⚠️ Ne PAS rediriger si on est sur /login ou /mot-de-passe-oublie
+      const chemin = window.location.pathname;
+      if (chemin !== '/login' && chemin !== '/mot-de-passe-oublie') {
+        localStorage.removeItem('dieumerci_token');
+        localStorage.removeItem('dieumerci_user');
         window.location.href = '/login';
       }
     }
