@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logodieumerci.png', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['logodieumerci.png', 'pwa-icon-192.png', 'pwa-icon-512.png'],
       manifest: {
         name: 'Dieu Merci - Gestion',
         short_name: 'Dieu Merci',
@@ -21,27 +21,28 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         lang: 'fr',
+        categories: ['business', 'productivity'],
         icons: [
           {
-            src: '/logodieumerci.png',
+            src: '/pwa-icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/logodieumerci.png',
+            src: '/pwa-icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'maskable',
           },
           {
-            src: '/logodieumerci.png',
+            src: '/pwa-icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/logodieumerci.png',
+            src: '/pwa-icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
