@@ -29,10 +29,7 @@ function RouteProtegee({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!role) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!role) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
@@ -50,25 +47,16 @@ function RouteProtegeeProprietaire({ children }: { children: React.ReactNode }) 
     );
   }
 
-  if (!role) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (role !== 'Proprietaire') {
-    return <Navigate to="/" replace />;
-  }
-
+  if (!role) return <Navigate to="/login" replace />;
+  if (role !== 'Proprietaire') return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      {/* Routes publiques */}
       <Route path="/login" element={<Login />} />
       <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
-
-      {/* Routes protégées */}
       <Route path="/" element={<RouteProtegee><Dashboard /></RouteProtegee>} />
       <Route path="/stock" element={<RouteProtegee><Stock /></RouteProtegee>} />
       <Route path="/structure-prix" element={<RouteProtegee><StructurePrix /></RouteProtegee>} />
@@ -85,13 +73,13 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <TauxProvider>
-          <SuccursalesProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+          <TauxProvider>
+            <SuccursalesProvider>
               <AppRoutes />
-            </BrowserRouter>
-          </SuccursalesProvider>
-        </TauxProvider>
+            </SuccursalesProvider>
+          </TauxProvider>
+        </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
   );
