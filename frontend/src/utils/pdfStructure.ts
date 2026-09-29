@@ -70,23 +70,21 @@ export const genererStructurePrixPDF = async (
   );
 
   // ========== GROUPER PAR CATÉGORIE ==========
-  // 1. Lister les catégories uniques
   const categories = Array.from(
     new Set(produits.map((p) => p.categorie || 'Divers'))
   ).sort((a, b) => a.localeCompare(b, 'fr'));
 
-  // 2. Préparer les lignes du tableau avec titres de catégorie
   const lignes: any[] = [];
   let compteur = 0;
 
   categories.forEach((cat) => {
-    // Titre de la catégorie (ligne spéciale)
+    // Titre de la catégorie
     lignes.push([
       {
         content: cat.toUpperCase(),
         colSpan: 4,
         styles: {
-          fillColor: [245, 166, 35], // Doré
+          fillColor: [245, 166, 35],
           textColor: [0, 0, 0],
           fontStyle: 'bold',
           halign: 'left',
@@ -103,8 +101,12 @@ export const genererStructurePrixPDF = async (
         lignes.push([
           compteur.toString(),
           p.nom,
-          p.prixUnitaire === 0 ? '0' : (p.prixUnitaire * taux).toFixed(0),
-          p.prixVenteLot === 0 ? '0' : (p.prixVenteLot * taux).toFixed(0),
+          p.prixUnitaire === 0
+            ? '0 FC'
+            : `${(p.prixUnitaire * taux).toFixed(0)} FC`,
+          p.prixVenteLot === 0
+            ? '0 FC'
+            : `${(p.prixVenteLot * taux).toFixed(0)} FC`,
         ]);
       });
   });
@@ -112,7 +114,14 @@ export const genererStructurePrixPDF = async (
   // ========== TABLEAU ==========
   autoTable(doc, {
     startY: 62,
-    head: [['N°', 'NOM DU PRODUIT', 'P.V UNITAIRE (FC)', 'P.V GROS / DOUZAINE (FC)']],
+    head: [
+      [
+        'N°',
+        'NOM DU PRODUIT',
+        'P.V UNITAIRE (FC)',
+        'P.V GROS / DOUZAINE (FC)',
+      ],
+    ],
     body: lignes,
     theme: 'grid',
     headStyles: {
