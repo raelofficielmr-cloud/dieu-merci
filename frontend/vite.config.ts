@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logodieumerci.png', 'pwa-icon-192.png', 'pwa-icon-512.png'],
+      includeAssets: ['logodieumerci', 'pwa-icon-192.png', 'pwa-icon-512.png'],
       manifest: {
         name: 'Dieu Merci - Gestion',
         short_name: 'Dieu Merci',

@@ -30,7 +30,7 @@ export default function Header() {
       <div className="flex items-center justify-between gap-2 md:gap-3">
         <img
           src="/logodieumerci.png"
-          alt="Dieu Merci"
+          alt="ETS"
           className="h-10 w-10 md:hidden object-contain flex-shrink-0"
         />
 
