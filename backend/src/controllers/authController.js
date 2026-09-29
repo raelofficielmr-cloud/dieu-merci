@@ -2,8 +2,11 @@ import jwt from 'jsonwebtoken';
 import Utilisateur from '../models/Utilisateur.js';
 import { creerNotification } from './notificationController.js';
 
-const genererToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
+// ⚠️ MODIFIÉ : inclut tokenVersion
+const genererToken = (id, role, tokenVersion) => {
+  return jwt.sign({ id, role, tokenVersion }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
 };
 
 // ========== LOGIN ==========
@@ -34,7 +37,11 @@ export const login = async (req, res) => {
       _id: utilisateurTrouve._id,
       nom: utilisateurTrouve.nom,
       role: utilisateurTrouve.role,
-      token: genererToken(utilisateurTrouve._id, utilisateurTrouve.role),
+      token: genererToken(
+        utilisateurTrouve._id,
+        utilisateurTrouve.role,
+        utilisateurTrouve.tokenVersion
+      ),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -82,13 +89,15 @@ export const getMe = async (req, res) => {
   }
 };
 
-// ========== LISTE UTILISATEURS (Papa) ==========
+// ========== LISTE UTILISATEURS ==========
 export const getUtilisateurs = async (req, res) => {
   try {
     if (req.utilisateur.role !== 'Proprietaire') {
       return res.status(403).json({ message: 'Réservé au propriétaire' });
     }
-    const utilisateurs = await Utilisateur.find().select('-motDePasse -reponseSecurite');
+    const utilisateurs = await Utilisateur.find().select(
+      '-motDePasse -reponseSecurite'
+    );
     res.json(utilisateurs);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -192,7 +201,7 @@ export const definirQuestionSecurite = async (req, res) => {
   }
 };
 
-// ========== OBTENIR MA QUESTION DE SÉCURITÉ ==========
+// ========== OBTENIR MA QUESTION ==========
 export const getMaQuestionSecurite = async (req, res) => {
   try {
     const utilisateur = await Utilisateur.findById(req.utilisateur.id).select(
@@ -210,7 +219,7 @@ export const getMaQuestionSecurite = async (req, res) => {
   }
 };
 
-// ========== OBTENIR LA QUESTION DE SÉCURITÉ PAR RÔLE (PUBLIC) ==========
+// ========== OBTENIR QUESTION PAR RÔLE (PUBLIC) ==========
 export const getQuestionSecuriteParRole = async (req, res) => {
   try {
     const { role } = req.params;
@@ -242,7 +251,7 @@ export const getQuestionSecuriteParRole = async (req, res) => {
   }
 };
 
-// ========== RÉINITIALISER MOT DE PASSE (PUBLIC, via question) ==========
+// ========== RÉINITIALISER MOT DE PASSE ==========
 export const reinitialiserMotDePasse = async (req, res) => {
   try {
     const { role, reponseSecurite, nouveauMotDePasse } = req.body;
@@ -285,6 +294,26 @@ export const reinitialiserMotDePasse = async (req, res) => {
     );
 
     res.json({ message: '✅ Mot de passe réinitialisé avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ========== ⚠️ NOUVEAU : DÉCONNECTER DE PARTOUT ==========
+export const deconnecterPartout = async (req, res) => {
+  try {
+    const utilisateur = await Utilisateur.findById(req.utilisateur.id);
+    if (!utilisateur) {
+      return res.status(404).json({ message: 'Utilisateur introuvable' });
+    }
+
+    // Incrémenter tokenVersion → invalide tous les tokens existants
+    utilisateur.tokenVersion += 1;
+    await utilisateur.save();
+
+    res.json({
+      message: '✅ Déconnecté de tous les appareils avec succès',
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

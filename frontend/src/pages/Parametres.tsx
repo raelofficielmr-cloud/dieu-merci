@@ -49,7 +49,7 @@ export default function Parametres() {
   const [messageMdp, setMessageMdp] = useState('');
   const [erreurMdp, setErreurMdp] = useState('');
   const [chargementMdp, setChargementMdp] = useState(false);
-
+  const [chargementDeconnexion, setChargementDeconnexion] = useState(false);
   useEffect(() => {
     const charger = async () => {
       try {
@@ -158,7 +158,30 @@ export default function Parametres() {
       setChargementMdp(false);
     }
   };
+const deconnecterTousAppareils = async () => {
+  const confirme = confirm(
+    '⚠️ Êtes-vous sûr ?\n\n' +
+    'Vous serez déconnecté de TOUS les appareils ' +
+    '(téléphone, tablette, PC).\n\n' +
+    'Vous devrez vous reconnecter avec votre mot de passe.'
+  );
 
+  if (!confirme) return;
+
+  setChargementDeconnexion(true);
+  try {
+    await authService.deconnecterPartout();
+    alert('✅ Déconnecté de tous les appareils.\n\nRedirection vers la page de connexion...');
+    localStorage.removeItem('dieumerci_token');
+    localStorage.removeItem('dieumerci_user');
+    window.location.href = '/login';
+  } catch (error: any) {
+    const msg = error.response?.data?.message || 'Erreur';
+    alert('⚠️ ' + msg);
+  } finally {
+    setChargementDeconnexion(false);
+  }
+};
   const utilisateurCible = utilisateurs.find((u) => u._id === cibleId);
   const changeAutre = cibleId !== '';
 
@@ -433,16 +456,37 @@ export default function Parametres() {
                 </div>
               )}
 
-              <button
-                onClick={changerLeMotDePasse}
-                disabled={chargementMdp}
-                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
-              >
-                {chargementMdp ? '⏳...' : '🔐 Changer le mot de passe'}
-              </button>
-            </div>
-          </>
-        )}
+                          <button
+              onClick={changerLeMotDePasse}
+              disabled={chargementMdp}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
+            >
+              {chargementMdp ? '⏳...' : '🔐 Changer le mot de passe'}
+            </button>
+          </div>
+
+          {/* ⚠️ NOUVEAU : Déconnexion globale */}
+          <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-600 p-4 md:p-6 rounded-lg mt-6">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-2">
+              🔓 Déconnexion globale
+            </h3>
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Déconnecte votre compte de <strong>TOUS les appareils</strong> 
+              (téléphone, tablette, PC). Utile si vous perdez un appareil.
+            </p>
+
+            <button
+              onClick={deconnecterTousAppareils}
+              disabled={chargementDeconnexion}
+              className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg"
+            >
+              {chargementDeconnexion
+                ? '⏳...'
+                : '🔓 Déconnecter de tous les appareils'}
+            </button>
+          </div>
+        </>
+      )}
       </div>
     </Layout>
   );

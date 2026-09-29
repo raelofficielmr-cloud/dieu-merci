@@ -72,4 +72,9 @@ export const authService = {
       nouveauMotDePasse,
     });
   },
+
+  // ⚠️ NOUVEAU
+  deconnecterPartout: async (): Promise<void> => {
+    await api.post('/auth/deconnecter-partout');
+  },
 };

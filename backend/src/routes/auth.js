@@ -9,6 +9,7 @@ import {
   getMaQuestionSecurite,
   getQuestionSecuriteParRole,
   reinitialiserMotDePasse,
+  deconnecterPartout,
 } from '../controllers/authController.js';
 import { proteger } from '../middleware/auth.js';
 
@@ -20,11 +21,12 @@ router.post('/register', creerUtilisateur);
 router.get('/question-securite/:role', getQuestionSecuriteParRole);
 router.post('/reinitialiser-mot-de-passe', reinitialiserMotDePasse);
 
-// Routes protégées (connecté)
+// Routes protégées
 router.get('/me', proteger, getMe);
 router.get('/utilisateurs', proteger, getUtilisateurs);
 router.put('/changer-mot-de-passe', proteger, changerMotDePasse);
 router.put('/question-securite', proteger, definirQuestionSecurite);
 router.get('/ma-question-securite', proteger, getMaQuestionSecurite);
+router.post('/deconnecter-partout', proteger, deconnecterPartout);  // ⚠️ NOUVEAU
 
 export default router;

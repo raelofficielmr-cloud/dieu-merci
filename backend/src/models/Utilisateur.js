@@ -9,6 +9,7 @@ const utilisateurSchema = new mongoose.Schema(
     actif: { type: Boolean, default: true },
     questionSecurite: { type: String, default: '' },
     reponseSecurite: { type: String, default: '' },
+    tokenVersion: { type: Number, default: 0 },  // ⚠️ NOUVEAU
   },
   { timestamps: true }
 );
@@ -20,7 +21,7 @@ utilisateurSchema.pre('save', async function () {
   this.motDePasse = await bcrypt.hash(this.motDePasse, salt);
 });
 
-// Hash la réponse de sécurité (minuscules + trim)
+// Hash la réponse de sécurité
 utilisateurSchema.pre('save', async function () {
   if (!this.isModified('reponseSecurite')) return;
   if (!this.reponseSecurite) return;
