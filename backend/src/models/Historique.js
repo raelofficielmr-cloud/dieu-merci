@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const historiqueSchema = new mongoose.Schema(
   {
     date: { type: Date, required: true },
-    type: { type: String, enum: ['Livraison', 'Approvisionnement', 'Versement'], required: true },
+    type: { type: String, enum: ['Livraison', 'Approvisionnement', 'Sortie', 'Versement'], required: true },
     succursale: { type: String, default: '' },
     montant: { type: Number, default: 0 },
     produit: { type: String, default: '' },
